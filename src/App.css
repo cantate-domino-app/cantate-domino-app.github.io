@@ -249,6 +249,176 @@ h3 {
 }
 
 /* ==========================================================================
+   GUIDA E PROMPT INSTALLAZIONE SU IPHONE (iOS)
+   ========================================================================== */
+.ios-prompt-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 18, 16, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  animation: fadeInPrompt 0.25s ease-out;
+}
+
+@media (min-width: 600px) {
+  .ios-prompt-overlay {
+    align-items: center;
+    padding: 1.5rem;
+  }
+}
+
+.ios-prompt-card {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 18px 18px 0 0;
+  padding: 1.5rem 1.4rem 1.8rem;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.2);
+  animation: slideUpPrompt 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 600px) {
+  .ios-prompt-card {
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.ios-prompt-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.3rem 0.5rem;
+  line-height: 1;
+}
+
+.ios-prompt-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.2rem;
+  padding-right: 1.5rem;
+}
+
+.ios-prompt-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.ios-prompt-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  margin: 0;
+  color: var(--text-main);
+  letter-spacing: 0.02em;
+}
+
+.ios-prompt-sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.ios-prompt-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1.3rem;
+}
+
+.ios-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.ios-step-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-top: 0.1rem;
+}
+
+[data-theme="dark"] .ios-step-num {
+  color: #141210;
+}
+
+.ios-step p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: var(--text-main);
+}
+
+.ios-share-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--btn-bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.15rem 0.35rem;
+  margin-left: 0.25rem;
+  color: var(--primary);
+}
+
+.ios-prompt-btn {
+  width: 100%;
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.98rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+[data-theme="dark"] .ios-prompt-btn {
+  color: #141210;
+}
+
+.ios-prompt-btn:hover {
+  opacity: 0.9;
+}
+
+@keyframes fadeInPrompt {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUpPrompt {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* ==========================================================================
    BADGE ADMIN NELLA NAVBAR (Visibilità perfetta e stile ceralacca/oro)
    ========================================================================== */
 .admin-active-badge {

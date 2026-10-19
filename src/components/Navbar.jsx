@@ -2,10 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAdmin } from '../context/AdminContext'
 import { useTheme } from '../context/ThemeContext'
+import IosInstallPrompt, { isIosDevice } from './IosInstallPrompt'
 
 export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false)
     const [installPrompt, setInstallPrompt] = useState(null)
+    const [isIos, setIsIos] = useState(false)
+    const [showIosGuide, setShowIosGuide] = useState(false)
     const location = useLocation()
     const { isAdmin, setShowLoginModal, logout } = useAdmin()
     const { theme, toggleTheme } = useTheme()
@@ -13,8 +16,10 @@ export default function Navbar() {
     const tapCountRef = useRef(0)
     const tapTimerRef = useRef(null)
 
-    // Gestione installazione PWA (Chrome, Edge, Android)
+    // Gestione installazione PWA (Chrome, Edge, Android + rilevamento iOS)
     useEffect(() => {
+        setIsIos(isIosDevice())
+
         const handleBeforeInstall = (e) => {
             e.preventDefault()
             setInstallPrompt(e)
@@ -95,7 +100,7 @@ export default function Navbar() {
                 </div>
 
                 <div className="navbar-right">
-                    {installPrompt && (
+                    {installPrompt ? (
                         <button
                             type="button"
                             className="install-navbar-btn"
@@ -105,7 +110,17 @@ export default function Navbar() {
                         >
                             📲 Installa
                         </button>
-                    )}
+                    ) : isIos ? (
+                        <button
+                            type="button"
+                            className="install-navbar-btn"
+                            onClick={() => setShowIosGuide(true)}
+                            title="Installa l'app su iPhone"
+                            aria-label="Guida installazione iPhone"
+                        >
+                            📲 Installa
+                        </button>
+                    ) : null}
 
                     {/* Toggle rapido tema Sole/Luna */}
                     <button
@@ -154,7 +169,7 @@ export default function Navbar() {
                     </Link>
                 </nav>
 
-                {installPrompt && (
+                {installPrompt ? (
                     <div className="sidebar-install-row">
                         <button
                             type="button"
@@ -167,7 +182,20 @@ export default function Navbar() {
                             📲 Installa l'App
                         </button>
                     </div>
-                )}
+                ) : isIos ? (
+                    <div className="sidebar-install-row">
+                        <button
+                            type="button"
+                            className="install-sidebar-btn"
+                            onClick={() => {
+                                setShowIosGuide(true)
+                                closeMenu()
+                            }}
+                        >
+                            📲 Installa su iPhone
+                        </button>
+                    </div>
+                ) : null}
 
                 <div className="sidebar-theme-row">
                     <span>Aspetto</span>
@@ -192,6 +220,9 @@ export default function Navbar() {
                     </div>
                 )}
             </aside>
+
+            {/* Guida e suggerimento per installare su iPhone */}
+            <IosInstallPrompt showModal={showIosGuide} onCloseModal={() => setShowIosGuide(false)} />
         </>
     )
 }
