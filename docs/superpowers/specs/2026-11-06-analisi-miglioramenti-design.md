@@ -177,6 +177,13 @@ L'app ricorda la password della parrocchia sul dispositivo dopo il primo inserim
 - **Passo 1 (minimo):** l'admin lavora nel foglio. Apre `Proposte`, copia la riga in `Canti`, segna "accettata". Zero codice.
 - **Passo 2:** schermata admin nell'app con elenco proposte, "Accetta" / "Rifiuta", e gestione parrocchie (crea, reimposta password).
 
+### Decisioni di Andrea per le Fasi 2-3 (6/11/2026)
+- Si fanno insieme **Fase 2** (pulizia dati, suggerimenti con conferma vera, catalogo veloce) e **Fase 3** (versione universale). Gli accordi (Fase 4) restano per dopo.
+- La versione universale vive in un **nuovo repository sul GitHub di Andrea**. L'app di Luca resta com'è finché non decidono di spostarsi.
+- Il database è una **copia di "Canti Luca" nel Drive di Andrea**. Il foglio di Luca non si tocca.
+- **Nome provvisorio**: "Canti Liturgici". Il nome definitivo si decide dopo e va cambiato in un punto solo.
+- Andrea ha accesso in modifica al foglio di Luca. Lo strumento Drive a disposizione legge e copia i fogli ma non modifica le celle: le modifiche ai dati passano dallo script Apps Script, attivato da Andrea.
+
 ### Nome, indirizzo, link
 - Nome neutro (da scegliere) e nuovo indirizzo. Il percorso `/canti-liturgici-santa-chiara/` è scritto a mano in `vite.config.js` (base, manifest, icone) e nei link condivisi: va cambiato ovunque in un colpo solo.
 - **Chi ha già installato l'app** con l'indirizzo vecchio deve reinstallarla. Si può lasciare all'indirizzo vecchio una pagina che reindirizza.
