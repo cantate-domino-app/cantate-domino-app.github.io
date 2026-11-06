@@ -1,97 +1,56 @@
 import { useState, useMemo } from 'react'
 import { useSongs } from '../context/SongsContext'
+import { searchSongs } from '../lib/search'
+import { isTempo } from '../lib/tags'
 import SongCard from '../components/SongCard'
 
-// Rimuove accenti e converte in minuscolo per ricerca flessibile
-function normalizeText(text) {
-    if (!text) return ''
-    return text
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
+const TUTTI = 'tutti'
+
+function TagRow({ label, tags, selected, onSelect }) {
+    if (tags.length === 0) return null
+    return (
+        <div className="tag-row" role="group" aria-label={label}>
+            <span className="tag-row-label">{label}</span>
+            <div className="tags-scroll-container">
+                {[TUTTI, ...tags].map((tag) => (
+                    <button
+                        key={tag}
+                        type="button"
+                        className={`tag-chip ${selected === tag ? 'active' : ''}`}
+                        aria-pressed={selected === tag}
+                        onClick={() => onSelect(tag)}
+                    >
+                        {tag}
+                    </button>
+                ))}
+            </div>
+        </div>
+    )
 }
 
 export default function HomePage() {
-    const { songs, loading, error } = useSongs()
+    const { songs, searchIndex, loading, error } = useSongs()
     const [search, setSearch] = useState('')
-    const [selectedTag, setSelectedTag] = useState('tutti')
+    const [selectedMomento, setSelectedMomento] = useState(TUTTI)
+    const [selectedTempo, setSelectedTempo] = useState(TUTTI)
 
-    // Estrai tutti i tag distinti e ordinali semplicemente in ordine alfabetico
-    const availableTags = useMemo(() => {
+    // Tag distinti divisi tra momenti della messa e tempi liturgici, in ordine alfabetico
+    const { momenti, tempi } = useMemo(() => {
         const set = new Set()
-        songs.forEach((song) => {
-            song.tags.forEach((tag) => {
-                if (tag) set.add(tag)
-            })
-        })
-        return ['tutti', ...Array.from(set).sort((a, b) => a.localeCompare(b))]
+        songs.forEach((song) => song.tags.forEach((tag) => tag && set.add(tag)))
+        const all = Array.from(set).sort((a, b) => a.localeCompare(b, 'it'))
+        return { momenti: all.filter((t) => !isTempo(t)), tempi: all.filter(isTempo) }
     }, [songs])
 
-    // Filtra e ordina canti per ricerca multi-parola e tag selezionato
+    // Ricerca testuale, poi filtro per momento e tempo (entrambi devono valere)
     const filteredSongs = useMemo(() => {
-        const normalizedQuery = normalizeText(search.trim())
-        const tokens = normalizedQuery.split(/\s+/).filter(Boolean)
+        return searchSongs(searchIndex, search).filter((song) =>
+            (selectedMomento === TUTTI || song.tags.includes(selectedMomento)) &&
+            (selectedTempo === TUTTI || song.tags.includes(selectedTempo))
+        )
+    }, [searchIndex, search, selectedMomento, selectedTempo])
 
-        // 1. Filtraggio per tag
-        const tagFiltered = songs.filter((song) => {
-            if (selectedTag === 'tutti') return true
-            return song.tags.some((tag) => normalizeText(tag) === normalizeText(selectedTag))
-        })
-
-        // Se non c'è ricerca testuale, ritorna semplicemente i canti filtrati per tag
-        if (tokens.length === 0) {
-            return tagFiltered
-        }
-
-        // 2. Ricerca multi-termine con logica AND e calcolo pertinenza (ranking)
-        const results = []
-
-        tagFiltered.forEach((song) => {
-            const normTitle = normalizeText(song.title)
-            const normAuthor = normalizeText(song.author)
-            const normId = normalizeText(song.id)
-            const normTags = song.tags.map(normalizeText).join(' ')
-            const normLyrics = normalizeText(song.lyrics)
-
-            const fullText = `${normTitle} ${normAuthor} ${normId} ${normTags} ${normLyrics}`
-
-            // Ogni parola cercata deve essere presente in almeno uno dei campi
-            const matchesAllTokens = tokens.every((token) => fullText.includes(token))
-
-            if (matchesAllTokens) {
-                // Calcola il punteggio di pertinenza
-                let score = 0
-
-                // Match perfetto o parziale dell'intera frase nel titolo
-                if (normTitle === normalizedQuery) {
-                    score += 120
-                } else if (normTitle.includes(normalizedQuery)) {
-                    score += 60
-                }
-
-                // Match dei singoli token nei vari campi (più peso a Titolo e Autore)
-                tokens.forEach((token) => {
-                    if (normId === token) score += 40
-                    if (normTitle.includes(token)) score += 25
-                    if (normAuthor.includes(token)) score += 20
-                    if (normTags.includes(token)) score += 10
-                    if (normLyrics.includes(token)) score += 2
-                })
-
-                results.push({ song, score })
-            }
-        })
-
-        // 3. Ordina per pertinenza decrescente, e in caso di parità alfabeticamente per titolo
-        results.sort((a, b) => {
-            if (b.score !== a.score) {
-                return b.score - a.score
-            }
-            return a.song.title.localeCompare(b.song.title, 'it')
-        })
-
-        return results.map((r) => r.song)
-    }, [songs, search, selectedTag])
+    const activeFilters = [selectedMomento, selectedTempo].filter((t) => t !== TUTTI)
 
     if (loading) {
         return <p className="status-message">Caricamento dell'archivio canti...</p>
@@ -105,9 +64,10 @@ export default function HomePage() {
         <section className="home-page">
             <div className="search-bar-wrapper">
                 <input
-                    type="text"
+                    type="search"
                     className="main-search-input"
                     placeholder="Cerca per titolo, autore, ID (es. A1) o parole del testo..."
+                    aria-label="Cerca un canto"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                 />
@@ -115,6 +75,7 @@ export default function HomePage() {
                     <button
                         type="button"
                         className="clear-search-btn"
+                        aria-label="Cancella ricerca"
                         onClick={() => setSearch('')}
                     >
                         ✕
@@ -122,30 +83,23 @@ export default function HomePage() {
                 )}
             </div>
 
-            <div className="tags-scroll-container">
-                {availableTags.map((tag) => (
-                    <button
-                        key={tag}
-                        type="button"
-                        className={`tag-chip ${selectedTag === tag ? 'active' : ''}`}
-                        onClick={() => setSelectedTag(tag)}
-                    >
-                        {tag}
-                    </button>
-                ))}
-            </div>
+            <TagRow label="Momento" tags={momenti} selected={selectedMomento} onSelect={setSelectedMomento} />
+            <TagRow label="Tempo liturgico" tags={tempi} selected={selectedTempo} onSelect={setSelectedTempo} />
 
             <div className="results-header">
                 <span>
                     {filteredSongs.length} {filteredSongs.length === 1 ? 'canto trovato' : 'canti trovati'}
                 </span>
-                {selectedTag !== 'tutti' && (
+                {activeFilters.length > 0 && (
                     <button
                         type="button"
                         className="reset-filter-btn"
-                        onClick={() => setSelectedTag('tutti')}
+                        onClick={() => {
+                            setSelectedMomento(TUTTI)
+                            setSelectedTempo(TUTTI)
+                        }}
                     >
-                        Rimuovi filtro: <strong>{selectedTag}</strong> ✕
+                        Rimuovi filtri: <strong>{activeFilters.join(' + ')}</strong> ✕
                     </button>
                 )}
             </div>

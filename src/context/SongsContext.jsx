@@ -1,6 +1,7 @@
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useMemo } from 'react'
 import Papa from 'papaparse'
 import { useCachedCsv } from '../hooks/useCachedCsv'
+import { buildSearchIndex } from '../lib/search'
 
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTOuSn2F5KZV-TYnF3yS92H_nEFYCPX_v-VmLtR4nqNXkh6tls7E94FP0ciMGomsPh5H-YBc4lBGFLH/pub?gid=0&single=true&output=csv'
 const CACHE_KEY = 'cached_songs_catalog_csv'
@@ -33,10 +34,11 @@ const SongsContext = createContext()
 export function SongsProvider({ children }) {
     const { data, loading, error: loadError } = useCachedCsv(CSV_URL, CACHE_KEY, parseCsvData, isEmpty)
     const songs = data || NO_SONGS
+    const searchIndex = useMemo(() => buildSearchIndex(songs), [songs])
     const error = loadError ? 'Errore durante il caricamento dei canti.' : null
 
     return (
-        <SongsContext.Provider value={{ songs, loading, error }}>
+        <SongsContext.Provider value={{ songs, searchIndex, loading, error }}>
             {children}
         </SongsContext.Provider>
     )
