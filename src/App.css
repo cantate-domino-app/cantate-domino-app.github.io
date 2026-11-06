@@ -624,6 +624,23 @@ h3 {
   color: var(--muted);
 }
 
+.song-row-binder {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--gold);
+}
+
+.song-binder {
+  margin-top: 0.35rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.song-binder.is-missing {
+  color: var(--gold);
+  font-weight: 600;
+}
+
 .song-row-play {
   flex: none;
   width: 52px;

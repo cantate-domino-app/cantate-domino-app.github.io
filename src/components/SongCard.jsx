@@ -10,6 +10,10 @@ export default function SongCard({ song }) {
                 <span>
                     <span className="song-row-title">{song.title}</span>
                     {song.author && <span className="song-row-author">{song.author}</span>}
+                    {!song.binder && <span className="song-row-binder">Non nel raccoglitore</span>}
+                    {song.binder && song.binder !== song.id && (
+                        <span className="song-row-binder">Raccoglitore: {song.binder}</span>
+                    )}
                 </span>
             </Link>
             {song.youtube && (
