@@ -1,17 +1,14 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '../components/Icon'
+import { useParrocchia } from '../context/ParrocchiaContext'
+import { chiamaApi } from '../lib/api'
 
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzbGK0hPvNUNyq5cLUWC9vb11Nm3S0jVGx9fXBvYk2Pp5mUdp7ozzsQbRp0mwrnMX9/exec'
+const VUOTO = { title: '', author: '', link: '', lyrics: '', notes: '', name: '' }
 
 export default function SuggestPage() {
-    const [formData, setFormData] = useState({
-        title: '',
-        author: '',
-        link: '',
-        notes: '',
-        name: ''
-    })
+    const { dati } = useParrocchia()
+    const [formData, setFormData] = useState({ ...VUOTO, parish: dati?.parrocchia?.nome || '' })
 
     const [status, setStatus] = useState({
         submitting: false,
@@ -37,39 +34,22 @@ export default function SuggestPage() {
 
         setStatus({ submitting: true, success: false, error: null })
 
-        try {
-            // Usiamo mode 'no-cors' per evitare blocchi cross-origin dal redirect di Google Apps Script
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'text/plain;charset=utf-8'
-                },
-                body: JSON.stringify(formData)
-            })
-
-            setStatus({
-                submitting: false,
-                success: true,
-                error: null
-            })
-
-            // Svuota il modulo
-            setFormData({
-                title: '',
-                author: '',
-                link: '',
-                notes: '',
-                name: ''
-            })
-        } catch (err) {
-            console.error('Errore invio suggerimento:', err)
-            setStatus({
-                submitting: false,
-                success: false,
-                error: "Si è verificato un errore durante l'invio. Riprova più tardi."
-            })
+        // Il "Grazie" arriva solo se lo script conferma di aver salvato la proposta
+        const risposta = await chiamaApi('proponiCanto', {
+            parrocchia: formData.parish,
+            titolo: formData.title,
+            autore: formData.author,
+            link: formData.link,
+            testo: formData.lyrics,
+            note: formData.notes,
+            nome: formData.name,
+        })
+        if (!risposta.ok) {
+            setStatus({ submitting: false, success: false, error: risposta.errore })
+            return
         }
+        setStatus({ submitting: false, success: true, error: null })
+        setFormData((prev) => ({ ...VUOTO, parish: prev.parish }))
     }
 
     return (
@@ -90,7 +70,7 @@ export default function SuggestPage() {
                 <div className="suggest-success-card">
                     <div className="success-icon"><Icon name="check" size={28} /></div>
                     <h3>Grazie per la proposta!</h3>
-                    <p>Il canto è stato inviato e salvato nell'archivio delle proposte.</p>
+                    <p>La proposta è arrivata. Se viene accettata, il canto compare nell'archivio.</p>
                     <button
                         type="button"
                         className="btn btn-new-suggestion"
@@ -137,13 +117,26 @@ export default function SuggestPage() {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="link">Link YouTube <span className="optional">(facoltativo)</span></label>
+                        <label htmlFor="link">Link YouTube o spartito <span className="optional">(facoltativo)</span></label>
                         <input
                             type="url"
                             id="link"
                             name="link"
                             placeholder="https://www.youtube.com/watch?v=..."
                             value={formData.link}
+                            onChange={handleChange}
+                            disabled={status.submitting}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="lyrics">Testo del canto <span className="optional">(facoltativo)</span></label>
+                        <textarea
+                            id="lyrics"
+                            name="lyrics"
+                            rows={6}
+                            placeholder="Strofe separate da una riga vuota"
+                            value={formData.lyrics}
                             onChange={handleChange}
                             disabled={status.submitting}
                         />
@@ -157,6 +150,19 @@ export default function SuggestPage() {
                             rows={3}
                             placeholder="es. Adatto per l'Offertorio nel tempo ordinario, strofe facili per l'assemblea..."
                             value={formData.notes}
+                            onChange={handleChange}
+                            disabled={status.submitting}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="parish">Parrocchia <span className="optional">(facoltativo)</span></label>
+                        <input
+                            type="text"
+                            id="parish"
+                            name="parish"
+                            placeholder="Da quale parrocchia arriva la proposta?"
+                            value={formData.parish}
                             onChange={handleChange}
                             disabled={status.submitting}
                         />
