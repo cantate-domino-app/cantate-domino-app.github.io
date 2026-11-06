@@ -3,6 +3,7 @@ import { useSongs } from '../context/SongsContext'
 import { searchSongs } from '../lib/search'
 import { isTempo } from '../lib/tags'
 import SongCard from '../components/SongCard'
+import Icon from '../components/Icon'
 
 const TUTTI = 'tutti'
 
@@ -63,10 +64,11 @@ export default function HomePage() {
     return (
         <section className="home-page">
             <div className="search-bar-wrapper">
+                <Icon name="search" />
                 <input
                     type="search"
                     className="main-search-input"
-                    placeholder="Cerca per titolo, autore, ID (es. A1) o parole del testo..."
+                    placeholder="Titolo, autore, codice o parole"
                     aria-label="Cerca un canto"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -74,11 +76,11 @@ export default function HomePage() {
                 {search && (
                     <button
                         type="button"
-                        className="clear-search-btn"
+                        className="icon-btn clear-search-btn"
                         aria-label="Cancella ricerca"
                         onClick={() => setSearch('')}
                     >
-                        ✕
+                        <Icon name="close" size={20} />
                     </button>
                 )}
             </div>
@@ -99,7 +101,8 @@ export default function HomePage() {
                             setSelectedTempo(TUTTI)
                         }}
                     >
-                        Rimuovi filtri: <strong>{activeFilters.join(' + ')}</strong> ✕
+                        Togli filtri: {activeFilters.join(' + ')}
+                        <Icon name="close" size={18} />
                     </button>
                 )}
             </div>

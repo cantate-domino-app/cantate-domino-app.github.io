@@ -1,41 +1,28 @@
 import { Link } from 'react-router-dom'
+import Icon from './Icon'
 
+// Riga dell'archivio: tutta la riga apre il canto, il triangolo apre YouTube
 export default function SongCard({ song }) {
     return (
-        <article className="song-card">
-            <div className="card-top">
-                {song.id && <span className="card-id">{song.id}</span>}
-                {song.youtube && (
-                    <a
-                        href={song.youtube}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="youtube-badge"
-                        title="Ascolta su YouTube"
-                    >
-                        ▶ YouTube
-                    </a>
-                )}
-            </div>
-
-            <h3 className="card-title">{song.title}</h3>
-            {song.author && <p className="card-author">{song.author}</p>}
-
-            {song.tags.length > 0 && (
-                <div className="card-tags">
-                    {song.tags.map((tag, idx) => (
-                        <span key={idx} className="tag-pill">
-                            {tag}
-                        </span>
-                    ))}
-                </div>
+        <article className="song-row">
+            <Link to={`/song/${song.id}`} className="song-row-main">
+                <span className="song-row-id">{song.id}</span>
+                <span>
+                    <span className="song-row-title">{song.title}</span>
+                    {song.author && <span className="song-row-author">{song.author}</span>}
+                </span>
+            </Link>
+            {song.youtube && (
+                <a
+                    href={song.youtube}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="song-row-play"
+                    aria-label={`Ascolta ${song.title} su YouTube`}
+                >
+                    <Icon name="play" size={20} />
+                </a>
             )}
-
-            <div className="card-footer">
-                <Link to={`/song/${song.id}`} className="details-btn">
-                    Vedi Canto e Testo →
-                </Link>
-            </div>
         </article>
     )
 }

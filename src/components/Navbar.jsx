@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAdmin } from '../context/AdminContext'
 import { useTheme } from '../context/ThemeContext'
 import IosInstallPrompt, { isIosDevice } from './IosInstallPrompt'
+import Icon from './Icon'
 
 export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false)
@@ -73,17 +74,18 @@ export default function Navbar() {
                 <div className="navbar-left">
                     <button
                         type="button"
-                        className="menu-button"
+                        className="icon-btn menu-button"
                         onClick={() => setMenuOpen(!menuOpen)}
                         aria-label="Apri menu"
+                        aria-expanded={menuOpen}
                     >
-                        ☰
+                        <Icon name="menu" />
                     </button>
 
                     <div className="navbar-titles">
                         <div className="navbar-title-row">
                             <h1>
-                                <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <Link to="/">
                                     Canti Liturgici
                                 </Link>
                             </h1>
@@ -103,45 +105,45 @@ export default function Navbar() {
                     {installPrompt ? (
                         <button
                             type="button"
-                            className="install-navbar-btn"
+                            className="btn btn-primary install-navbar-btn"
                             onClick={handleInstallClick}
                             title="Installa l'app sul tuo dispositivo"
-                            aria-label="Installa applicazione"
                         >
-                            📲 Installa
+                            <Icon name="install" size={18} />
+                            Installa
                         </button>
                     ) : isIos ? (
                         <button
                             type="button"
-                            className="install-navbar-btn"
+                            className="btn btn-primary install-navbar-btn"
                             onClick={() => setShowIosGuide(true)}
                             title="Installa l'app su iPhone"
-                            aria-label="Guida installazione iPhone"
                         >
-                            📲 Installa
+                            <Icon name="install" size={18} />
+                            Installa
                         </button>
                     ) : null}
 
                     {/* Toggle rapido tema Sole/Luna */}
                     <button
                         type="button"
-                        className="theme-toggle-btn"
+                        className="icon-btn theme-toggle-btn"
                         onClick={toggleTheme}
                         title={theme === 'dark' ? 'Passa al tema Chiaro' : 'Passa al tema Scuro'}
-                        aria-label="Cambia tema chiaro/scuro"
+                        aria-label={theme === 'dark' ? 'Passa al tema chiaro' : 'Passa al tema scuro'}
                     >
-                        {theme === 'dark' ? '☀️' : '🌙'}
+                        <Icon name={theme === 'dark' ? 'sun' : 'moon'} />
                     </button>
                 </div>
             </header>
 
             {menuOpen && <div className="backdrop" onClick={closeMenu} />}
 
-            <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
+            <aside className={`sidebar ${menuOpen ? 'open' : ''}`} aria-label="Menu">
                 <div className="sidebar-header">
                     <h2>Menu</h2>
-                    <button type="button" className="close-button" onClick={closeMenu}>
-                        ✕
+                    <button type="button" className="icon-btn close-button" onClick={closeMenu} aria-label="Chiudi menu">
+                        <Icon name="close" />
                     </button>
                 </div>
 
@@ -173,34 +175,37 @@ export default function Navbar() {
                     <div className="sidebar-install-row">
                         <button
                             type="button"
-                            className="install-sidebar-btn"
+                            className="btn btn-primary install-sidebar-btn"
                             onClick={() => {
                                 handleInstallClick()
                                 closeMenu()
                             }}
                         >
-                            📲 Installa l'App
+                            <Icon name="install" size={18} />
+                            Installa l'App
                         </button>
                     </div>
                 ) : isIos ? (
                     <div className="sidebar-install-row">
                         <button
                             type="button"
-                            className="install-sidebar-btn"
+                            className="btn btn-primary install-sidebar-btn"
                             onClick={() => {
                                 setShowIosGuide(true)
                                 closeMenu()
                             }}
                         >
-                            📲 Installa su iPhone
+                            <Icon name="install" size={18} />
+                            Installa su iPhone
                         </button>
                     </div>
                 ) : null}
 
                 <div className="sidebar-theme-row">
                     <span>Aspetto</span>
-                    <button type="button" className="theme-pill-btn" onClick={toggleTheme}>
-                        {theme === 'dark' ? '☀️ Chiaro' : '🌙 Scuro'}
+                    <button type="button" className="btn theme-pill-btn" onClick={toggleTheme}>
+                        <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
+                        {theme === 'dark' ? 'Chiaro' : 'Scuro'}
                     </button>
                 </div>
 
@@ -209,7 +214,7 @@ export default function Navbar() {
                         <span className="admin-status-text">Modalità Luca attiva</span>
                         <button
                             type="button"
-                            className="admin-logout-btn"
+                            className="btn admin-logout-btn"
                             onClick={() => {
                                 logout()
                                 closeMenu()
