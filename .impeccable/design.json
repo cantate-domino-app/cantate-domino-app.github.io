@@ -1,0 +1,664 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-06T18:21:44+00:00",
+  "title": "Design System: Canti Liturgici",
+  "extensions": {
+    "colorMeta": {
+      "rubric": {
+        "role": "primary",
+        "displayName": "Rosso Amaranto di Rubrica",
+        "canonical": "#8b261e",
+        "tonalRamp": [
+          "#351a18",
+          "#5d2723",
+          "#8d322b",
+          "#c2382d",
+          "#d25f55",
+          "#d8938d",
+          "#e3c2bf",
+          "#f6efee"
+        ]
+      },
+      "rubric-hover": {
+        "role": "primary",
+        "displayName": "Amaranto Profondo",
+        "canonical": "#6d1b14",
+        "tonalRamp": [
+          "#361917",
+          "#5f2621",
+          "#902f27",
+          "#c83528",
+          "#d75c51",
+          "#db918a",
+          "#e5c1be",
+          "#f6efee"
+        ]
+      },
+      "rubric-soft": {
+        "role": "primary",
+        "displayName": "Velo di Rubrica",
+        "canonical": "#f6e7e3",
+        "tonalRamp": [
+          "#32201b",
+          "#573229",
+          "#834535",
+          "#b3563d",
+          "#c67762",
+          "#d0a195",
+          "#e0c9c3",
+          "#f5f1ef"
+        ]
+      },
+      "on-rubric": {
+        "role": "primary",
+        "displayName": "Bianco su Rubrica",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#262626",
+          "#404040",
+          "#5c5c5c",
+          "#787878",
+          "#949494",
+          "#b2b2b2",
+          "#d1d1d1",
+          "#f2f2f2"
+        ]
+      },
+      "gold": {
+        "role": "secondary",
+        "displayName": "Oro Scurito",
+        "canonical": "#8a5b0f",
+        "tonalRamp": [
+          "#382a14",
+          "#64481c",
+          "#996a1e",
+          "#d58e1b",
+          "#e2a646",
+          "#e1be84",
+          "#e8d6ba",
+          "#f7f3ee"
+        ]
+      },
+      "gold-soft": {
+        "role": "secondary",
+        "displayName": "Fondo Oro",
+        "canonical": "#f9f1de",
+        "tonalRamp": [
+          "#362d17",
+          "#5f4c21",
+          "#917127",
+          "#c89828",
+          "#d7af51",
+          "#dbc38a",
+          "#e5d9be",
+          "#f6f4ee"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Inchiostro",
+        "canonical": "#2b231d",
+        "tonalRamp": [
+          "#2b2622",
+          "#483f37",
+          "#6b5a4d",
+          "#8e7561",
+          "#a79181",
+          "#beb1a7",
+          "#d7d0cc",
+          "#f3f2f1"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Inchiostro Sbiadito",
+        "canonical": "#6e6053",
+        "tonalRamp": [
+          "#292623",
+          "#46403a",
+          "#665b51",
+          "#887768",
+          "#a19386",
+          "#bbb2aa",
+          "#d5d1cd",
+          "#f3f2f1"
+        ]
+      },
+      "bg": {
+        "role": "neutral",
+        "displayName": "Pergamena",
+        "canonical": "#f5f0e6",
+        "tonalRamp": [
+          "#30291d",
+          "#53462d",
+          "#7d673b",
+          "#a98846",
+          "#bda26a",
+          "#cbbb9a",
+          "#ddd5c5",
+          "#f5f3f0"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Carta Chiara",
+        "canonical": "#fcfaf4",
+        "tonalRamp": [
+          "#332d1a",
+          "#594c26",
+          "#877230",
+          "#ba9936",
+          "#cbb05d",
+          "#d4c391",
+          "#e1d9c1",
+          "#f6f4ef"
+        ]
+      },
+      "bar": {
+        "role": "neutral",
+        "displayName": "Pergamena di Bordo",
+        "canonical": "#ede6d6",
+        "tonalRamp": [
+          "#2f2a1e",
+          "#51472e",
+          "#7a673e",
+          "#a5894b",
+          "#baa36e",
+          "#c9bb9c",
+          "#dcd5c6",
+          "#f5f3f0"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Filetto",
+        "canonical": "#dfd4bf",
+        "tonalRamp": [
+          "#2e291f",
+          "#4f4431",
+          "#756442",
+          "#9e8451",
+          "#b49e74",
+          "#c6b99f",
+          "#dbd4c8",
+          "#f4f3f0"
+        ]
+      },
+      "chorus": {
+        "role": "neutral",
+        "displayName": "Fondo Ritornello",
+        "canonical": "#efe7d6",
+        "tonalRamp": [
+          "#302a1d",
+          "#53472c",
+          "#7d683a",
+          "#ab8a45",
+          "#bea369",
+          "#ccbc99",
+          "#ded6c5",
+          "#f5f3f0"
+        ]
+      },
+      "danger": {
+        "role": "neutral",
+        "displayName": "Errore",
+        "canonical": "#a1251b",
+        "tonalRamp": [
+          "#361916",
+          "#602520",
+          "#922d25",
+          "#ca3226",
+          "#d9594f",
+          "#dc8f89",
+          "#e5c0bd",
+          "#f6efee"
+        ]
+      },
+      "success": {
+        "role": "neutral",
+        "displayName": "Conferma",
+        "canonical": "#1e6b3d",
+        "tonalRamp": [
+          "#1a3324",
+          "#27593b",
+          "#318753",
+          "#37b96b",
+          "#5dca89",
+          "#92d3ac",
+          "#c1e1ce",
+          "#eff6f2"
+        ]
+      },
+      "success-soft": {
+        "role": "neutral",
+        "displayName": "Fondo Conferma",
+        "canonical": "#e3efe6",
+        "tonalRamp": [
+          "#202c23",
+          "#344c3a",
+          "#477151",
+          "#589768",
+          "#79ae87",
+          "#a3c2ab",
+          "#c9d9cd",
+          "#f1f4f1"
+        ]
+      },
+      "veglia-rubric": {
+        "role": "primary",
+        "displayName": "Oro di Veglia",
+        "canonical": "#e0a33a",
+        "tonalRamp": [
+          "#362b16",
+          "#60481f",
+          "#936b24",
+          "#cc8e24",
+          "#daa74d",
+          "#ddbe88",
+          "#e6d7bd",
+          "#f7f3ee"
+        ]
+      },
+      "veglia-rubric-hover": {
+        "role": "primary",
+        "displayName": "Amaranto Profondo (veglia)",
+        "canonical": "#ecb85c",
+        "tonalRamp": [
+          "#382b15",
+          "#634a1c",
+          "#986d1f",
+          "#d3911c",
+          "#e1a947",
+          "#e1bf84",
+          "#e7d7bb",
+          "#f7f4ee"
+        ]
+      },
+      "veglia-rubric-soft": {
+        "role": "primary",
+        "displayName": "Velo di Rubrica (veglia)",
+        "canonical": "rgba(224, 163, 58, 0.14)",
+        "tonalRamp": []
+      },
+      "veglia-on-rubric": {
+        "role": "primary",
+        "displayName": "Bianco su Rubrica (veglia)",
+        "canonical": "#141210",
+        "tonalRamp": [
+          "#292624",
+          "#45403b",
+          "#645c53",
+          "#85786b",
+          "#9f9489",
+          "#b9b2ac",
+          "#d4d1ce",
+          "#f3f2f2"
+        ]
+      },
+      "veglia-ink": {
+        "role": "neutral",
+        "displayName": "Inchiostro (veglia)",
+        "canonical": "#f0e8da",
+        "tonalRamp": [
+          "#30291d",
+          "#53452d",
+          "#7c653b",
+          "#a98547",
+          "#bd9f6b",
+          "#cbb99a",
+          "#ddd4c5",
+          "#f5f3f0"
+        ]
+      },
+      "veglia-muted": {
+        "role": "neutral",
+        "displayName": "Inchiostro Sbiadito (veglia)",
+        "canonical": "#a89a89",
+        "tonalRamp": [
+          "#2a2723",
+          "#464039",
+          "#675d50",
+          "#897a66",
+          "#a39585",
+          "#bbb3aa",
+          "#d5d2cd",
+          "#f3f2f1"
+        ]
+      },
+      "veglia-bg": {
+        "role": "neutral",
+        "displayName": "Pergamena (veglia)",
+        "canonical": "#141210",
+        "tonalRamp": [
+          "#292624",
+          "#45403b",
+          "#645c53",
+          "#85786b",
+          "#9f9489",
+          "#b9b2ac",
+          "#d4d1ce",
+          "#f3f2f2"
+        ]
+      },
+      "veglia-surface": {
+        "role": "neutral",
+        "displayName": "Carta Chiara (veglia)",
+        "canonical": "#1d1915",
+        "tonalRamp": [
+          "#2a2623",
+          "#474039",
+          "#685c50",
+          "#8a7865",
+          "#a39484",
+          "#bcb2a9",
+          "#d6d1cd",
+          "#f3f2f1"
+        ]
+      },
+      "veglia-bar": {
+        "role": "neutral",
+        "displayName": "Pergamena di Bordo (veglia)",
+        "canonical": "#1a1714",
+        "tonalRamp": [
+          "#292623",
+          "#46403a",
+          "#665c52",
+          "#877869",
+          "#a19487",
+          "#bab2ab",
+          "#d5d1cd",
+          "#f3f2f1"
+        ]
+      },
+      "veglia-line": {
+        "role": "neutral",
+        "displayName": "Filetto (veglia)",
+        "canonical": "#38312a",
+        "tonalRamp": [
+          "#292623",
+          "#464039",
+          "#675c51",
+          "#887867",
+          "#a29486",
+          "#bbb2aa",
+          "#d5d1cd",
+          "#f3f2f1"
+        ]
+      },
+      "veglia-chorus": {
+        "role": "neutral",
+        "displayName": "Fondo Ritornello (veglia)",
+        "canonical": "#241f1a",
+        "tonalRamp": [
+          "#2a2623",
+          "#474039",
+          "#685c4f",
+          "#8a7865",
+          "#a49484",
+          "#bcb2a9",
+          "#d6d1cd",
+          "#f3f2f1"
+        ]
+      },
+      "veglia-gold-soft": {
+        "role": "secondary",
+        "displayName": "Fondo Oro (veglia)",
+        "canonical": "rgba(224, 163, 58, 0.12)",
+        "tonalRamp": []
+      },
+      "veglia-danger": {
+        "role": "neutral",
+        "displayName": "Errore (veglia)",
+        "canonical": "#f08a7e",
+        "tonalRamp": [
+          "#381815",
+          "#63241c",
+          "#982c1f",
+          "#d3301c",
+          "#e15747",
+          "#e18e84",
+          "#e7bfbb",
+          "#f7efee"
+        ]
+      },
+      "veglia-success": {
+        "role": "neutral",
+        "displayName": "Conferma (veglia)",
+        "canonical": "#7fcf9b",
+        "tonalRamp": [
+          "#1c3023",
+          "#2b543a",
+          "#397f51",
+          "#43ac68",
+          "#68c087",
+          "#98cdab",
+          "#c4decd",
+          "#f0f5f1"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Titoli di pagina e di finestra, in Cinzel."
+      },
+      "wordmark": {
+        "displayName": "Marchio",
+        "purpose": "Nome dell'app nella barra."
+      },
+      "headline": {
+        "displayName": "Titolo del canto",
+        "purpose": "Titolo nella pagina canto; 2.4rem da 600px."
+      },
+      "title": {
+        "displayName": "Titolo in riga",
+        "purpose": "Titoli nelle righe di archivio e celebrazione."
+      },
+      "lyrics": {
+        "displayName": "Testo da cantare",
+        "purpose": "Testo dei canti, regolabile da 16 a 36px."
+      },
+      "body": {
+        "displayName": "Corpo",
+        "purpose": "Testo d'interfaccia."
+      },
+      "meta": {
+        "displayName": "Autore",
+        "purpose": "Autori in corsivo sbiadito."
+      },
+      "label": {
+        "displayName": "Rubrica",
+        "purpose": "Indicazioni liturgiche in maiuscoletto rosso (oro in veglia)."
+      }
+    },
+    "shadows": [
+      {
+        "name": "sovrapposizione",
+        "value": "0 10px 30px -12px rgba(43, 35, 29, 0.35)",
+        "purpose": "Menu laterale aperto e finestre (tema chiaro)."
+      },
+      {
+        "name": "sovrapposizione-veglia",
+        "value": "0 12px 32px -10px rgba(0, 0, 0, 0.7)",
+        "purpose": "Menu laterale aperto e finestre (veglia)."
+      },
+      {
+        "name": "alone-focus",
+        "value": "0 0 0 3px var(--rubric-soft)",
+        "purpose": "Campi a fuoco, con bordo in rubrica."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Menu laterale (0.25s) e finestre che salgono (0.3s)."
+      },
+      {
+        "name": "stato",
+        "value": "0.15s",
+        "purpose": "Cambi di fondo, bordo e colore al passaggio."
+      },
+      {
+        "name": "velo",
+        "value": "0.2s ease-out",
+        "purpose": "Comparsa del velo sotto menu e finestre."
+      },
+      {
+        "name": "movimento-ridotto",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Menu e finestre compaiono senza animazione."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "finestre-centrate",
+        "value": "600px"
+      },
+      {
+        "name": "ipad-due-colonne",
+        "value": "900px"
+      },
+      {
+        "name": "colonna-massima",
+        "value": "1080px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Pulsante principale",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Capsula piena in rubrica per l'azione principale di un contesto.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Invia suggerimento</button>",
+      "css": ":host{--bg:#f5f0e6;--surface:#fcfaf4;--bar:#ede6d6;--line:#dfd4bf;--ink:#2b231d;--muted:#6e6053;--rubric:#8b261e;--rubric-hover:#6d1b14;--rubric-soft:#f6e7e3;--on-rubric:#fff;--chorus:#efe7d6;--gold-soft:#f9f1de;--font-serif:\"EB Garamond\",Georgia,serif;--font-display:\"Cinzel\",\"EB Garamond\",Georgia,serif} :focus-visible{outline:3px solid var(--rubric);outline-offset:2px;border-radius:6px} .ds-btn{min-height:44px;display:inline-flex;align-items:center;gap:.45rem;padding:0 1.1rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 1rem var(--font-serif);transition:background-color .15s,border-color .15s,color .15s;cursor:pointer} .ds-btn:hover{border-color:var(--muted)} .ds-btn-primary{background:var(--rubric);border-color:var(--rubric);color:var(--on-rubric)} .ds-btn-primary:hover{background:var(--rubric-hover);border-color:var(--rubric-hover)}"
+    },
+    {
+      "name": "Pulsante secondario",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Capsula carta chiara con filetto, con icona a tratto.",
+      "html": "<button class=\"ds-btn\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 3v12M7.5 7.5L12 3l4.5 4.5M5 13v6.5h14V13\"/></svg>Condividi</button>",
+      "css": ":host{--bg:#f5f0e6;--surface:#fcfaf4;--bar:#ede6d6;--line:#dfd4bf;--ink:#2b231d;--muted:#6e6053;--rubric:#8b261e;--rubric-hover:#6d1b14;--rubric-soft:#f6e7e3;--on-rubric:#fff;--chorus:#efe7d6;--gold-soft:#f9f1de;--font-serif:\"EB Garamond\",Georgia,serif;--font-display:\"Cinzel\",\"EB Garamond\",Georgia,serif} :focus-visible{outline:3px solid var(--rubric);outline-offset:2px;border-radius:6px} .ds-btn{min-height:44px;display:inline-flex;align-items:center;gap:.45rem;padding:0 1.1rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 1rem var(--font-serif);transition:background-color .15s,border-color .15s,color .15s;cursor:pointer} .ds-btn:hover{border-color:var(--muted)} "
+    },
+    {
+      "name": "Pulsante icona",
+      "kind": "button",
+      "refersTo": "icon-button",
+      "description": "Quadrato 44px; acceso con velo di rubrica (schermo acceso, dimensione testo).",
+      "html": "<button class=\"ds-icon-btn\" aria-label=\"Dimensione testo\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.5 18l5-12 5 12M5.3 14h6.4M14.5 18l3.5-8 3.5 8M15.5 15.5h5\"/></svg></button><button class=\"ds-icon-btn\" aria-pressed=\"true\" aria-label=\"Schermo sempre acceso\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"6\" y=\"2.5\" width=\"12\" height=\"19\" rx=\"2.5\"/><path d=\"M12 8.5v3.2l2 1.5\"/></svg></button>",
+      "css": ":host{--bg:#f5f0e6;--surface:#fcfaf4;--bar:#ede6d6;--line:#dfd4bf;--ink:#2b231d;--muted:#6e6053;--rubric:#8b261e;--rubric-hover:#6d1b14;--rubric-soft:#f6e7e3;--on-rubric:#fff;--chorus:#efe7d6;--gold-soft:#f9f1de;--font-serif:\"EB Garamond\",Georgia,serif;--font-display:\"Cinzel\",\"EB Garamond\",Georgia,serif} :focus-visible{outline:3px solid var(--rubric);outline-offset:2px;border-radius:6px} .ds-icon-btn{width:44px;height:44px;display:inline-grid;place-items:center;border:0;border-radius:12px;background:none;color:var(--ink);cursor:pointer;transition:background-color .15s,color .15s} .ds-icon-btn:hover{background:var(--rubric-soft)} .ds-icon-btn[aria-pressed=\"true\"]{background:var(--rubric-soft);color:var(--rubric)}"
+    },
+    {
+      "name": "Ricerca",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "Campo di ricerca grande con lente; focus con bordo e alone in rubrica.",
+      "html": "<label class=\"ds-search\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"6.5\"/><path d=\"M16 16l4.5 4.5\"/></svg><input type=\"search\" placeholder=\"Titolo, autore, numero o parole del testo\"></label>",
+      "css": ":host{--bg:#f5f0e6;--surface:#fcfaf4;--bar:#ede6d6;--line:#dfd4bf;--ink:#2b231d;--muted:#6e6053;--rubric:#8b261e;--rubric-hover:#6d1b14;--rubric-soft:#f6e7e3;--on-rubric:#fff;--chorus:#efe7d6;--gold-soft:#f9f1de;--font-serif:\"EB Garamond\",Georgia,serif;--font-display:\"Cinzel\",\"EB Garamond\",Georgia,serif} .ds-search{position:relative;display:block} .ds-search svg{position:absolute;left:.95rem;top:50%;transform:translateY(-50%);color:var(--muted)} .ds-search input{width:100%;min-height:54px;padding:0 1rem 0 2.9rem;font:1.1rem var(--font-serif);border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);appearance:none} .ds-search input::placeholder{color:var(--muted)} .ds-search input:focus{outline:none;border-color:var(--rubric);box-shadow:0 0 0 3px var(--rubric-soft)}"
+    },
+    {
+      "name": "Filtri",
+      "kind": "chip",
+      "refersTo": "chip-filter",
+      "description": "Capsule da 40px; selezionata piena in rubrica.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip ds-on\">ingresso</button><button class=\"ds-chip\">comunione</button><button class=\"ds-chip\">finale</button></div>",
+      "css": ":host{--bg:#f5f0e6;--surface:#fcfaf4;--bar:#ede6d6;--line:#dfd4bf;--ink:#2b231d;--muted:#6e6053;--rubric:#8b261e;--rubric-hover:#6d1b14;--rubric-soft:#f6e7e3;--on-rubric:#fff;--chorus:#efe7d6;--gold-soft:#f9f1de;--font-serif:\"EB Garamond\",Georgia,serif;--font-display:\"Cinzel\",\"EB Garamond\",Georgia,serif} :focus-visible{outline:3px solid var(--rubric);outline-offset:2px;border-radius:6px} .ds-chips{display:flex;gap:.4rem} .ds-chip{min-height:40px;padding:0 .9rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:500 1rem var(--font-serif);cursor:pointer} .ds-chip::first-letter{text-transform:uppercase} .ds-chip.ds-on{background:var(--rubric);border-color:var(--rubric);color:var(--on-rubric);font-weight:600}"
+    },
+    {
+      "name": "Barra del canto",
+      "kind": "nav",
+      "refersTo": "icon-button",
+      "description": "Barra appiccicata: torna indietro in rubrica, pulsanti icona a destra.",
+      "html": "<nav class=\"ds-bar\"><a href=\"#\" class=\"ds-back\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 18l-6-6 6-6\"/></svg><span>Archivio</span></a><button class=\"ds-ib\" aria-label=\"Condividi\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 3v12M7.5 7.5L12 3l4.5 4.5M5 13v6.5h14V13\"/></svg></button></nav>",
+      "css": ":host{--bg:#f5f0e6;--surface:#fcfaf4;--bar:#ede6d6;--line:#dfd4bf;--ink:#2b231d;--muted:#6e6053;--rubric:#8b261e;--rubric-hover:#6d1b14;--rubric-soft:#f6e7e3;--on-rubric:#fff;--chorus:#efe7d6;--gold-soft:#f9f1de;--font-serif:\"EB Garamond\",Georgia,serif;--font-display:\"Cinzel\",\"EB Garamond\",Georgia,serif} :focus-visible{outline:3px solid var(--rubric);outline-offset:2px;border-radius:6px} .ds-bar{display:flex;align-items:center;padding:.35rem .5rem;background:var(--bar);border-bottom:1px solid var(--line)} .ds-back{flex:1;display:inline-flex;align-items:center;gap:.15rem;min-height:44px;color:var(--rubric);font:600 1.05rem var(--font-serif);text-decoration:none} .ds-ib{width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:12px;background:none;color:var(--ink);cursor:pointer} .ds-ib:hover{background:var(--rubric-soft)}"
+    },
+    {
+      "name": "Riga di celebrazione",
+      "kind": "custom",
+      "refersTo": "rubric",
+      "description": "Rubrica del momento sopra il titolo del canto in inchiostro.",
+      "html": "<button class=\"ds-row\"><span><span class=\"ds-rubric\">Ingresso</span><span class=\"ds-t\">Chiamati per nome</span><span class=\"ds-a\">Gen Verde</span></span><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 9l6 6 6-6\"/></svg></button>",
+      "css": ":host{--bg:#f5f0e6;--surface:#fcfaf4;--bar:#ede6d6;--line:#dfd4bf;--ink:#2b231d;--muted:#6e6053;--rubric:#8b261e;--rubric-hover:#6d1b14;--rubric-soft:#f6e7e3;--on-rubric:#fff;--chorus:#efe7d6;--gold-soft:#f9f1de;--font-serif:\"EB Garamond\",Georgia,serif;--font-display:\"Cinzel\",\"EB Garamond\",Georgia,serif} :focus-visible{outline:3px solid var(--rubric);outline-offset:2px;border-radius:6px} .ds-row{width:100%;display:flex;align-items:center;gap:.75rem;min-height:72px;padding:.7rem 1rem;border:0;border-bottom:1px solid var(--line);background:var(--surface);color:var(--ink);text-align:left;cursor:pointer} .ds-row:hover{background:var(--rubric-soft)} .ds-row svg{margin-left:auto;color:var(--muted)} .ds-rubric{display:block;font:700 .75rem/1.3 var(--font-display);letter-spacing:.12em;text-transform:uppercase;color:var(--rubric)} .ds-t{display:block;font:600 1.25rem/1.2 var(--font-serif)} .ds-a{display:block;font:italic .95rem var(--font-serif);color:var(--muted)}"
+    },
+    {
+      "name": "Strofe e ritornello",
+      "kind": "custom",
+      "refersTo": "chorus-block",
+      "description": "Numero e ℟ in rubrica nel margine; ritornello in grassetto su fondo chorus.",
+      "html": "<div class=\"ds-lyrics\"><div class=\"ds-st ds-ch\"><span class=\"ds-m\">℟.</span><div><p>Acclamate al Signore,</p><p>voi tutti della terra</p></div></div><div class=\"ds-st\"><span class=\"ds-m\">1</span><div><p>Riconoscete che il Signore,</p><p>che il Signore è Dio</p></div></div></div>",
+      "css": ":host{--bg:#f5f0e6;--surface:#fcfaf4;--bar:#ede6d6;--line:#dfd4bf;--ink:#2b231d;--muted:#6e6053;--rubric:#8b261e;--rubric-hover:#6d1b14;--rubric-soft:#f6e7e3;--on-rubric:#fff;--chorus:#efe7d6;--gold-soft:#f9f1de;--font-serif:\"EB Garamond\",Georgia,serif;--font-display:\"Cinzel\",\"EB Garamond\",Georgia,serif} .ds-lyrics{font:22px/1.5 var(--font-serif);color:var(--ink);padding:0 1rem} .ds-st{display:grid;grid-template-columns:1.6em 1fr;margin-bottom:1.1em} .ds-m{color:var(--rubric);font-weight:600;font-size:.8em;padding-top:.18em} .ds-ch{--bleed:min(.6em,.75rem);font-weight:600;background:var(--chorus);margin-inline:calc(-1*var(--bleed));padding:.5em var(--bleed);border-radius:10px}"
+    },
+    {
+      "name": "Barra tra i canti",
+      "kind": "nav",
+      "refersTo": "stepper-next",
+      "description": "Precedente / posizione / successivo; il successivo è pieno in rubrica.",
+      "html": "<nav class=\"ds-step\"><a href=\"#\" class=\"ds-sl\"><span class=\"ds-r\">‹ Ingresso</span><span class=\"ds-st2\">Chiamati per nome</span></a><span class=\"ds-pos\">2 / 10</span><a href=\"#\" class=\"ds-sl ds-next\"><span class=\"ds-r\">Gloria ›</span><span class=\"ds-st2\">Gloria</span></a></nav>",
+      "css": ":host{--bg:#f5f0e6;--surface:#fcfaf4;--bar:#ede6d6;--line:#dfd4bf;--ink:#2b231d;--muted:#6e6053;--rubric:#8b261e;--rubric-hover:#6d1b14;--rubric-soft:#f6e7e3;--on-rubric:#fff;--chorus:#efe7d6;--gold-soft:#f9f1de;--font-serif:\"EB Garamond\",Georgia,serif;--font-display:\"Cinzel\",\"EB Garamond\",Georgia,serif} :focus-visible{outline:3px solid var(--rubric);outline-offset:2px;border-radius:6px} .ds-step{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.5rem;padding:.5rem .6rem;background:var(--bar);border-top:1px solid var(--line)} .ds-sl{display:flex;flex-direction:column;justify-content:center;min-height:56px;min-width:0;padding:.35rem .75rem;border-radius:12px;color:var(--ink);text-decoration:none} .ds-sl:hover{background:var(--rubric-soft)} .ds-next{align-items:flex-end;text-align:right;background:var(--rubric);color:var(--on-rubric)} .ds-next:hover{background:var(--rubric-hover)} .ds-r{font:700 .68rem/1.3 var(--font-display);letter-spacing:.12em;text-transform:uppercase;color:var(--rubric)} .ds-next .ds-r{color:inherit} .ds-st2{font:600 1.05rem/1.15 var(--font-serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .ds-pos{font:.95rem var(--font-serif);color:var(--muted);font-variant-numeric:tabular-nums}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Il messale sul leggio",
+    "overview": "**Creative North Star: \"Il messale sul leggio\"**\n\nIl sistema è costruito come una pagina di libro liturgico appoggiata su un leggio: fondo pergamena, testo in inchiostro scuro, e tutto ciò che *indica* (il momento della messa, il numero di strofa, il segno ℟ del ritornello, l'intestazione di una sezione) composto come rubrica, in maiuscoletto Cinzel rosso amaranto. Il testo da cantare non è mai in rosso; le indicazioni non sono mai in inchiostro. Questa separazione è l'unica idea decorativa del sistema e regge tutta la gerarchia.\n\nLa densità è quella di uno strumento di lavoro: l'archivio è a righe con filetti sottili, non a schede; la celebrazione è una lista compatta che si apre sul canto che serve; la pagina del canto è una colonna stretta di testo grande allineato a sinistra. Le barre (in alto, in basso, menu laterale) hanno un tono di pergamena più scuro e un filetto, mai un'ombra. La profondità compare solo per ciò che si sovrappone davvero alla pagina: menu laterale e finestre.\n\nIl tema scuro, \"veglia\", non è un'inversione meccanica: la pergamena diventa legno bruciato quasi nero, l'inchiostro diventa avorio e la rubrica passa dal rosso all'oro, perché il rosso amaranto su fondo scuro non regge il contrasto in chiesa con poca luce. Le icone sono disegnate a tratto, tutte con lo stesso spessore, e prendono il colore dal testo.",
+    "keyCharacteristics": [
+      "Rubrica rossa (oro in veglia) in maiuscoletto Cinzel per ogni indicazione; testo da cantare in inchiostro EB Garamond.",
+      "Testo dei canti grande (22px di partenza, regolabile da 16 a 36px), interlinea 1.5, allineato a sinistra, con numero di strofa e ℟ nel margine.",
+      "Ritornello in grassetto su un fondo pergamena più carico, che sporge appena oltre il testo.",
+      "Superfici piatte separate da filetti; ombra solo per menu e finestre sovrapposti.",
+      "Aree di tocco di almeno 44px, righe d'archivio da 68px, righe di celebrazione da 72px.",
+      "Icone SVG a tratto (1.8) su griglia 24, colore `currentColor`."
+    ],
+    "rules": [
+      {
+        "name": "La Regola della Rubrica",
+        "body": "Ciò che si canta è in inchiostro; ciò che indica è in rubrica. Un testo da cantare non prende mai il colore rubric, e un'indicazione liturgica non è mai composta in inchiostro.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regola della Veglia",
+        "body": "Nel tema scuro la rubrica è oro, non rosso: ogni uso di rubric si risolve in veglia-rubric, e il testo sopra un pieno oro è veglia-on-rubric, mai bianco.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regola del Maiuscoletto",
+        "body": "Cinzel e il maiuscolo si usano solo per rubriche, marchio e titoli di pagina o finestra. I titoli dei canti e il testo restano in Garamond con le maiuscole naturali.",
+        "section": "typography"
+      },
+      {
+        "name": "La Regola dei Numeri nel Margine",
+        "body": "Numero di strofa e ℟ stanno in una colonna di margine larga 1.6em, a 0.8em in rubrica 600; il testo resta allineato a sinistra su un unico filo.",
+        "section": "typography"
+      },
+      {
+        "name": "La Regola delle Righe",
+        "body": "L'archivio e la celebrazione sono liste di righe con filetto, non griglie di schede: su un telefono devono stare 6-7 canti in uno schermo.",
+        "section": "layout"
+      },
+      {
+        "name": "La Regola della Pagina Piatta",
+        "body": "Righe, barre, pulsanti e riquadri non hanno ombra. L'ombra significa \"questo sta sopra la pagina\" e appartiene solo a menu e finestre.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** componi ogni indicazione liturgica (momento, numero di strofa, ℟, intestazione di sezione) come rubrica: Cinzel 700 maiuscolo in rubric.",
+      "**Do** lascia il testo da cantare in inchiostro, Garamond 400 a 22px di partenza, interlinea 1.5, allineato a sinistra, regolabile da 16 a 36px.",
+      "**Do** separa superfici con filetti da 1px in line e con il cambio di tono bg / surface / bar.",
+      "**Do** tieni ogni area toccabile ad almeno 44px; le righe principali stanno a 52-72px.",
+      "**Do** usa le icone SVG a tratto di Icon.jsx (griglia 24, tratto 1.8, `currentColor`), sempre accompagnate da un nome accessibile.",
+      "**Do** in veglia risolvi ogni rubrica in oro e metti testo quasi nero sopra i pieni oro.",
+      "**Do** rispetta `prefers-reduced-motion`: menu e finestre compaiono senza scorrere."
+    ],
+    "donts": [
+      "**Don't** mettere in rubrica il testo da cantare o un titolo di canto, e non comporre un'indicazione liturgica in inchiostro.",
+      "**Don't** scrivere titoli di canto in maiuscolo o in Cinzel: Cinzel è per rubriche, marchio e titoli di pagina.",
+      "**Don't** trasformare archivio o celebrazione in griglie di schede con ombra.",
+      "**Don't** usare emoji o caratteri come icone nei pulsanti; il segno ℟ è un segno liturgico tipografico, non un'icona.",
+      "**Don't** usare il rosso amaranto nel tema scuro, né testo bianco sopra l'oro.",
+      "**Don't** dare ombra a righe, barre o pulsanti: l'ombra è solo di menu e finestre.",
+      "**Don't** centrare il testo del canto."
+    ]
+  }
+}

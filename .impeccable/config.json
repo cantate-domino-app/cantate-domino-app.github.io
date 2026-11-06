@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "wide-tracking",
+        "value": "*",
+        "files": [
+          "docs/restyling/direzione.html"
+        ],
+        "createdAt": "2026-11-06T18:16:36.471Z",
+        "reason": "Claude: la spaziatura 0.12em è solo sulle rubriche, etichette brevi in maiuscoletto Cinzel; tavola di riferimento statica, non codice dell'app"
+      }
+    ]
+  }
+}
