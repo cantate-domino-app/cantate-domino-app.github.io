@@ -26,7 +26,7 @@ test('chiamaApi: rete assente → niente è stato salvato', async () => {
 
 test('chiamaApi: risposta non JSON o errore HTTP → risposta non valida', async () => {
     assert.match((await chiamaApi('x', {}, { fetchImpl: risposta('<html>'), url: URL_PROVA })).errore, /Risposta non valida/)
-    assert.match((await chiamaApi('x', {}, { fetchImpl: risposta('{}', false), url: URL_PROVA })).errore, /Risposta non valida/)
+    assert.match((await chiamaApi('x', {}, { fetchImpl: risposta('{}', false), url: URL_PROVA })).errore, /Risposta non valida.*niente è stato salvato/)
 })
 
 test('chiamaApi: server che non risponde → errore dopo il timeout', async () => {

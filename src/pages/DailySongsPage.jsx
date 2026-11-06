@@ -195,6 +195,12 @@ export default function DailySongsPage() {
                         <Icon name="screen-on" />
                     </button>
                 )}
+                <Link
+                    to={`/celebrazioni/${slug}/modifica${activeCelebration ? `?c=${encodeURIComponent(activeCelebration)}` : ''}`}
+                    className="btn"
+                >
+                    Modifica
+                </Link>
                 {matchedSchedule.length > 0 && (
                     <button
                         type="button"

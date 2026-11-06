@@ -12,6 +12,7 @@ import DailySongsPage from './pages/DailySongsPage'
 import SuggestPage from './pages/SuggestPage'
 import AdminPage from './pages/AdminPage'
 import ParishPickerPage from './pages/ParishPickerPage'
+import EditCelebrationsPage from './pages/EditCelebrationsPage'
 import './App.css'
 
 // Vecchi link condivisi (#/daily?celebrazione=...): portano alla parrocchia scelta l'ultima volta
@@ -38,6 +39,7 @@ export default function App() {
                   <Route path="/song/:id" element={<SongPage />} />
                   <Route path="/celebrazioni" element={<ParishPickerPage />} />
                   <Route path="/celebrazioni/:slug" element={<DailySongsPage />} />
+                  <Route path="/celebrazioni/:slug/modifica" element={<EditCelebrationsPage />} />
                   <Route path="/daily" element={<VecchioLinkCelebrazioni />} />
                   <Route path="/suggest" element={<SuggestPage />} />
                   <Route path="/admin" element={<AdminPage />} />

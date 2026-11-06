@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useLocation } from 'react-router-dom'
 import { useSongs } from '../context/SongsContext'
 import { useAdmin } from '../context/AdminContext'
-import { useRaccoglitore } from '../context/ParrocchiaContext'
+import { useRaccoglitore, useParrocchia } from '../context/ParrocchiaContext'
+import { riferimentoProposto, prefissoDi } from '../lib/raccoglitore'
 import { useFontSize } from '../hooks/useFontSize'
 import { useWakeLock } from '../hooks/useWakeLock'
 import SongLyrics from '../components/SongLyrics'
@@ -53,6 +54,53 @@ function SheetRow({ label, url, title, isAdmin = false }) {
             </div>
             {showPreview && (
                 <iframe src={preview} title={`${label}: ${title}`} className="pdf-preview" loading="lazy" />
+            )}
+        </div>
+    )
+}
+
+// Con la password del coro: aggiungere o togliere il canto dal raccoglitore della parrocchia
+function BinderEditor({ song, riferimento }) {
+    const { dati, sbloccata, scriviApi, aggiornaDati } = useParrocchia()
+    const [valore, setValore] = useState(null)
+    const [stato, setStato] = useState({ invio: false, errore: null })
+    if (!sbloccata || !dati) return null
+
+    const proposto = riferimentoProposto(dati.raccoglitore.map((r) => r.riferimento), prefissoDi(song.id))
+
+    const salva = async (nuovo) => {
+        setStato({ invio: true, errore: null })
+        const risposta = await scriviApi('salvaRiferimento', { cantoId: song.id, riferimento: nuovo })
+        if (!risposta.ok) return setStato({ invio: false, errore: risposta.errore })
+        const altri = dati.raccoglitore.filter((r) => r.cantoId.toUpperCase() !== song.id.toUpperCase())
+        aggiornaDati({ ...dati, raccoglitore: nuovo ? [...altri, { cantoId: song.id, riferimento: nuovo }] : altri })
+        setValore(null)
+        setStato({ invio: false, errore: null })
+    }
+
+    return (
+        <div className="binder-editor">
+            {stato.errore && <p className="suggest-error-banner" role="alert">{stato.errore}</p>}
+            {riferimento ? (
+                <button type="button" className="btn" disabled={stato.invio} onClick={() => salva('')}>
+                    Togli dal raccoglitore
+                </button>
+            ) : (
+                <form className="binder-form" onSubmit={(e) => {
+                    e.preventDefault()
+                    const nuovo = (valore ?? proposto).trim()
+                    if (nuovo) salva(nuovo)
+                }}>
+                    <label htmlFor="riferimento">Riferimento</label>
+                    <input
+                        id="riferimento"
+                        type="text"
+                        maxLength={20}
+                        value={valore ?? proposto}
+                        onChange={(e) => setValore(e.target.value)}
+                    />
+                    <button type="submit" className="btn" disabled={stato.invio}>Aggiungi al raccoglitore</button>
+                </form>
             )}
         </div>
     )
@@ -190,6 +238,7 @@ export default function SongPage() {
                             {riferimento ? `Nel raccoglitore: ${riferimento}` : 'Non nel raccoglitore'}
                         </p>
                     )}
+                    <BinderEditor song={song} riferimento={riferimento} />
                 </div>
             </header>
 

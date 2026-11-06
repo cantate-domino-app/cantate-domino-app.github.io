@@ -1,7 +1,7 @@
 import { API_URL } from '../config.js'
 
 const ERRORE_RETE = 'Connessione assente o lenta: niente è stato salvato. Riprova.'
-const ERRORE_RISPOSTA = 'Risposta non valida dal server.'
+const ERRORE_RISPOSTA = 'Risposta non valida dal server: niente è stato salvato. Riprova.'
 
 export function urlLettura(azione, params = {}, url = API_URL) {
     return `${url}?${new URLSearchParams({ azione, ...params })}`

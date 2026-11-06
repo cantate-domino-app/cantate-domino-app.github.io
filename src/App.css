@@ -1177,6 +1177,133 @@ h3 {
   font-size: 1.1rem;
 }
 
+/* ---------- Modifica celebrazioni e raccoglitore ---------- */
+
+.form-group select {
+  min-height: 48px;
+  padding: 0 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.form-ok {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  font-weight: 600;
+}
+
+.link-btn {
+  min-height: 44px;
+  border: 0;
+  background: none;
+  color: var(--rubric);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.edit-rows {
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+  padding: 0;
+  margin: 0;
+}
+
+.edit-row {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.edit-row-actions,
+.edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.picker,
+.picker-chosen {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.picker-chosen {
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+}
+
+.picker .search-bar-wrapper {
+  padding: 0;
+  margin: 0;
+}
+
+.form-group .main-search-input {
+  padding-left: 2.9rem;
+}
+
+.picker-title {
+  font-size: 1.1rem;
+}
+
+.picker-results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.picker-option {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 0.4rem 0.75rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.picker-option:hover {
+  background: var(--rubric-soft);
+}
+
+.binder-editor {
+  margin-top: 0.75rem;
+}
+
+.binder-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.binder-form input {
+  width: 7rem;
+  min-height: 44px;
+  padding: 0 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
 .suggest-error-banner {
   padding: 0.75rem 1rem;
   border-radius: var(--radius);

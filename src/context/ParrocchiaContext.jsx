@@ -1,13 +1,14 @@
 import { createContext, useContext, useState, useCallback, useMemo } from 'react'
 import { useCachedCsv } from '../hooks/useCachedCsv'
-import { urlLettura } from '../lib/api'
+import { urlLettura, chiamaApi } from '../lib/api'
 
 const CHIAVE_ATTIVA = 'parrocchia_attiva'
 const chiaveCache = (slug) => `cached_celebrazioni_${slug}`
+const chiavePassword = (slug) => `password_${slug}`
 
-function leggiAttiva() {
+function leggiStorage(chiave) {
     try {
-        return localStorage.getItem(CHIAVE_ATTIVA) || null
+        return localStorage.getItem(chiave) || null
     } catch {
         return null
     }
@@ -26,7 +27,9 @@ const NESSUN_RIFERIMENTO = new Map()
 const ParrocchiaContext = createContext()
 
 export function ParrocchiaProvider({ children }) {
-    const [slug, setSlug] = useState(leggiAttiva)
+    const [slug, setSlug] = useState(() => leggiStorage(CHIAVE_ATTIVA))
+    // Password del coro, ricordata su questo dispositivo dopo la verifica sul server
+    const [password, setPassword] = useState(() => leggiStorage(chiavePassword(slug)))
     const [versione, setVersione] = useState(0)
     const url = slug ? urlLettura('celebrazioni', { parrocchia: slug }) : null
     const { data, loading, error } = useCachedCsv(url, chiaveCache(slug), parseCelebrazioni, maiVuoto, versione)
@@ -34,7 +37,29 @@ export function ParrocchiaProvider({ children }) {
     const scegli = useCallback((nuovo) => {
         localStorage.setItem(CHIAVE_ATTIVA, nuovo)
         setSlug(nuovo)
+        setPassword(leggiStorage(chiavePassword(nuovo)))
     }, [])
+
+    const sblocca = useCallback(async (tentativo) => {
+        const risposta = await chiamaApi('verificaParrocchia', { parrocchia: slug, password: tentativo })
+        if (risposta.ok) {
+            localStorage.setItem(chiavePassword(slug), tentativo)
+            setPassword(tentativo)
+        }
+        return risposta
+    }, [slug])
+
+    const esci = useCallback(() => {
+        localStorage.removeItem(chiavePassword(slug))
+        setPassword(null)
+    }, [slug])
+
+    // Scrittura con la password della parrocchia; se il server la rifiuta, si richiede
+    const scriviApi = useCallback(async (azione, dati) => {
+        const risposta = await chiamaApi(azione, { parrocchia: slug, password, ...dati })
+        if (!risposta.ok && risposta.errore === 'Parrocchia o password non corretti.') esci()
+        return risposta
+    }, [slug, password, esci])
 
     // Dopo un salvataggio riuscito: mostra subito i dati nuovi, poi li riconferma dal server
     const aggiornaDati = useCallback((nuovi) => {
@@ -56,6 +81,10 @@ export function ParrocchiaProvider({ children }) {
         error: error ? 'Impossibile caricare le celebrazioni della parrocchia.' : null,
         aggiornaDati,
         riferimenti,
+        sbloccata: !!password,
+        sblocca,
+        esci,
+        scriviApi,
     }
 
     return <ParrocchiaContext.Provider value={valore}>{children}</ParrocchiaContext.Provider>
