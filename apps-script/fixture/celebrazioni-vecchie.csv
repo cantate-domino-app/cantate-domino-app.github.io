@@ -1,0 +1,31 @@
+Celebrazione,Momento,Canto_ID,Note,,,,,,
+Messa 10:30,Ingresso,c10,,,,,,,
+Messa 10:30,Atto Penitenziale,t2,,,,,,,
+Messa 10:30,Gloria,g12,,,,,,,
+Messa 10:30,Alleluia,all17,,,,,,,
+Messa 10:30,Offertorio,b1,,,,,,,
+Messa 10:30,Santo,san7,,,,,,,
+Messa 10:30,Padre Nostro,p2,,,,,,,
+Messa 10:30,Pace,s2,,,,,,,
+Messa 10:30,Comunione,e8,,,,,,,
+Messa 10:30,Finale,p14,,,,,,,ALDO
+Messa 12:15,Ingresso,g6,,,Messa 12:15,Ingresso,g6,,E5
+Messa 12:15,Atto Penitenziale,s22,,,Messa 12:15,Atto Penitenziale,s22,,JK2
+Messa 12:15,Gloria,g7,,,Messa 12:15,Gloria,g7,,G7
+Messa 12:15,Alleluia,all4,,,Messa 12:15,Alleluia,all4,,C1
+Messa 12:15,Offertorio,s7,,,Messa 12:15,Offertorio,s7,,S19
+Messa 12:15,Santo,san4,,,Messa 12:15,Santo,san4,,SAN9
+Messa 12:15,Padre Nostro,,,,Messa 12:15,Padre Nostro,,,
+Messa 12:15,Agnello di Dio,a23,,,Messa 12:15,Agnello di Dio,a23,,A26
+Messa 12:15,Comunione,b5,,,Messa 12:15,Comunione,r1,,L11
+Messa 12:15,Finale,v8,,,Messa 12:15,Finale,v8,,O8
+Adorazione,Esposizione,A25,,,,,,,
+Adorazione,Adorazione 1,S16,,,,,,,
+Adorazione,Adorazione 2,T13,,,,,,,
+Adorazione,Adorazione 3,A24,,,,,,,
+Adorazione,Adorazione 4,L18,,,,,,,
+Adorazione,Adorazione 5,N4,,,,,,,
+Adorazione,Adorazione 6,m11,,,,,,,
+Adorazione,Adorazione 7,V7,,,,,,,
+Adorazione,Reposizione,r1,,,,,,,
+Adorazione,Finale,A19,,,,,,,
