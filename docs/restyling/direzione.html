@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direzione grafica — Canti Liturgici</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e6; --surface: #fcfaf4; --bar: #ede6d6; --line: #dfd4bf;
+    --ink: #2b231d; --muted: #6e6053; --rubric: #8b261e; --rubric-soft: #f6e7e3; --gold: #b47818;
+    --chorus: #efe7d6;
+    --serif: 'EB Garamond', Georgia, serif; --display: 'Cinzel', 'EB Garamond', serif;
+  }
+  .dark {
+    --bg: #141210; --surface: #1d1915; --bar: #1a1714; --line: #38312a;
+    --ink: #f0e8da; --muted: #a89a89; --rubric: #e0a33a; --rubric-soft: rgba(224,163,58,.14); --gold: #e0a33a;
+    --chorus: #241f1a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0 }
+  body { font-family: var(--serif); background: #d9d2c4; color: #2b231d; padding: 40px 24px 80px }
+  .board-head { max-width: 1240px; margin: 0 auto 32px }
+  .board-head h1 { font-family: var(--display); font-size: 28px; letter-spacing: .02em }
+  .board-head p { font-size: 19px; max-width: 70ch; margin-top: 8px; line-height: 1.5 }
+  .principles { max-width: 1240px; margin: 0 auto 36px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 28px; font-size: 17px; line-height: 1.45 }
+  .principles b { color: #8b261e }
+  .frames { max-width: 1240px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 36px; align-items: flex-start }
+  figure { display: flex; flex-direction: column; gap: 10px }
+  figcaption { font-size: 16px; max-width: 375px; line-height: 1.4 }
+  figcaption b { font-family: var(--display); font-size: 13px; letter-spacing: .08em; display: block }
+
+  .phone { width: 375px; height: 760px; border-radius: 36px; overflow: hidden; background: var(--bg); color: var(--ink);
+    box-shadow: 0 18px 40px -12px rgba(43,35,29,.45), 0 0 0 10px #2b231d; position: relative; display: flex; flex-direction: column }
+  .scroll { flex: 1; overflow: hidden }
+
+  /* barra superiore */
+  .topbar { display: flex; align-items: center; gap: 4px; padding: 44px 8px 8px; background: var(--bar); border-bottom: 1px solid var(--line) }
+  .topbar .back { display: flex; align-items: center; gap: 2px; font-size: 18px; font-weight: 600; color: var(--rubric); padding: 10px 8px; min-height: 44px }
+  .topbar .spacer { flex: 1 }
+  .ibtn { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; color: var(--ink); border: 0; background: none }
+  .ibtn.on { background: var(--rubric-soft); color: var(--rubric) }
+  .ibtn svg, .back svg, .row svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round }
+  .wordmark { font-family: var(--display); font-size: 19px; font-weight: 700; letter-spacing: .03em; padding: 0 8px }
+  .wordmark small { display: block; font-family: var(--serif); font-size: 14px; font-weight: 400; letter-spacing: 0; color: var(--muted) }
+
+  /* rubrica: il segno distintivo */
+  .rubric { font-family: var(--display); font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--rubric) }
+
+  /* pagina canto */
+  .song { padding: 22px 24px 24px }
+  .song h2 { font-size: 32px; line-height: 1.12; font-weight: 600; margin: 6px 0 4px; text-wrap: balance }
+  .song .by { font-size: 18px; color: var(--muted); font-style: italic }
+  .lyrics { margin-top: 22px; font-size: 22px; line-height: 1.5 }
+  .stanza { display: grid; grid-template-columns: 26px 1fr; margin-bottom: 18px }
+  .stanza .n { color: var(--rubric); font-weight: 600; font-size: .8em; padding-top: .18em }
+  .stanza.rit { background: var(--chorus); margin-left: -12px; margin-right: -12px; padding: 10px 12px; border-radius: 10px; font-weight: 600 }
+  .marker { display: grid; grid-template-columns: 26px 1fr; color: var(--rubric); font-weight: 600; margin-bottom: 18px; font-size: .8em }
+
+  .stepper { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px; padding: 8px 10px 26px; background: var(--bar); border-top: 1px solid var(--line) }
+  .stepper a { display: flex; flex-direction: column; min-height: 52px; justify-content: center; padding: 6px 10px; border-radius: 12px; color: var(--ink); text-decoration: none }
+  .stepper a:last-child { text-align: right; align-items: flex-end; background: var(--rubric); color: #fff }
+  .dark .stepper a:last-child { color: #141210 }
+  .stepper a span { font-size: 17px; font-weight: 600; line-height: 1.15 }
+  .stepper a .rubric { font-size: 11px; color: inherit; opacity: .85 }
+  .stepper .pos { font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums }
+
+  /* celebrazioni */
+  .celeb-head { padding: 20px 20px 10px }
+  .celeb-head h2 { font-family: var(--display); font-size: 26px; font-weight: 700 }
+  .seg { display: flex; gap: 6px; padding: 0 20px 14px; overflow: hidden }
+  .seg button { font: 600 16px var(--serif); min-height: 44px; padding: 0 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); white-space: nowrap }
+  .seg button.on { background: var(--ink); color: var(--bg); border-color: var(--ink) }
+  .celeb-actions { display: flex; justify-content: space-between; align-items: center; padding: 0 20px 12px; font-size: 16px; color: var(--muted) }
+  .pill { display: inline-flex; gap: 6px; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 20px; border: 1px solid var(--line); font-weight: 600; color: var(--ink); background: var(--surface) }
+  .pill svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8 }
+  .list { border-top: 1px solid var(--line); background: var(--surface) }
+  .row { display: grid; grid-template-columns: 1fr 24px; align-items: center; gap: 8px; padding: 12px 20px; border-bottom: 1px solid var(--line); min-height: 64px }
+  .row .t { font-size: 20px; font-weight: 600; line-height: 1.2 }
+  .row .a { font-size: 15px; color: var(--muted); font-style: italic }
+  .row.missing .t { color: var(--muted); font-weight: 400 }
+  .row svg { color: var(--muted) }
+  .open-lyrics { padding: 4px 20px 16px 20px; border-bottom: 1px solid var(--line); background: var(--surface); font-size: 19px; line-height: 1.5 }
+  .open-lyrics .stanza { grid-template-columns: 22px 1fr; margin-bottom: 12px }
+
+  /* home */
+  .search { margin: 14px 16px 10px; display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); font-size: 18px; color: var(--muted) }
+  .search svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8 }
+  .chips { padding: 2px 16px 8px; display: flex; gap: 6px; align-items: center; overflow: hidden; white-space: nowrap }
+  .chips .lab { font-size: 13px; color: var(--muted); width: 58px; flex: none; line-height: 1.1; white-space: normal }
+  .chip { font: 500 16px var(--serif); min-height: 40px; padding: 0 14px; border-radius: 20px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); display: inline-flex; align-items: center }
+  .chip.on { background: var(--rubric); border-color: var(--rubric); color: #fff }
+  .dark .chip.on { color: #141210 }
+  .count { padding: 8px 16px; font-size: 15px; color: var(--muted) }
+  .songrow { display: grid; grid-template-columns: 46px 1fr 44px; align-items: center; padding: 10px 8px 10px 16px; border-bottom: 1px solid var(--line); background: var(--surface); min-height: 68px }
+  .songrow .id { font-family: var(--display); font-size: 13px; font-weight: 700; color: var(--rubric) }
+  .songrow .t { font-size: 20px; font-weight: 600; line-height: 1.2 }
+  .songrow .a { font-size: 15px; color: var(--muted); font-style: italic }
+  .songrow .play { width: 44px; height: 44px; display: grid; place-items: center; color: var(--muted) }
+  .songrow .play svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8 }
+
+  .notes { max-width: 1240px; margin: 44px auto 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; font-size: 17px; line-height: 1.5 }
+  .notes h3 { font-family: var(--display); font-size: 15px; letter-spacing: .06em; margin-bottom: 6px; color: #8b261e }
+  .notes ul { padding-left: 18px }
+</style>
+</head>
+<body>
+<header class="board-head">
+  <h1>Direzione grafica — proposta</h1>
+  <p>Stessa identità di oggi (pergamena, amaranto, oro, EB Garamond, Cinzel, tema scuro "veglia"), riorganizzata per chi canta e suona. Le tre schermate sono disegnate in scala reale di un telefono.</p>
+</header>
+
+<section class="principles">
+  <div><b>Il segno distintivo: la rubrica.</b> Come nei libri liturgici, le indicazioni sono in rosso e il testo da cantare in nero: momento della messa, numero della strofa, ℟ del ritornello. Si capisce dove si è senza leggere.</div>
+  <div><b>Testo prima di tutto.</b> Testo dei canti in minuscolo/maiuscolo normale, mai tutto maiuscolo; 22px di partenza, fino a 36px. Ritornello in grassetto su un fondo appena più scuro, senza barre colorate.</div>
+  <div><b>Meno pulsanti, più grandi.</b> Tre icone in alto (testo, schermo acceso, condividi), tutte da 44px. Il cinzel resta solo per il nome dell'app, i titoli delle celebrazioni e le rubriche.</div>
+</section>
+
+<div class="frames">
+
+  <!-- 1. Pagina canto, chiaro -->
+  <figure>
+    <div class="phone">
+      <div class="topbar">
+        <span class="back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Messa 10:30</span>
+        <span class="spacer"></span>
+        <button class="ibtn" aria-label="Dimensione testo"><svg viewBox="0 0 24 24"><path d="M4 18l5-12 5 12M5.8 14h6.4M15 18l3.5-8 3.5 8M16 15.5h5"/></svg></button>
+        <button class="ibtn on" aria-label="Schermo sempre acceso"><svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 8.5v3l2 1.5"/></svg></button>
+        <button class="ibtn" aria-label="Condividi"><svg viewBox="0 0 24 24"><path d="M12 3v12M7.5 7.5L12 3l4.5 4.5M5 13v6.5h14V13"/></svg></button>
+      </div>
+      <div class="scroll">
+        <div class="song">
+          <div class="rubric">Ingresso · C10</div>
+          <h2>Chiamati per nome</h2>
+          <div class="by">Gen Verde</div>
+          <div class="lyrics">
+            <div class="stanza rit"><span class="n">℟.</span><div>Veniamo da te,<br>chiamati per nome.<br>Che festa, Signore,<br>tu cammini con noi.</div></div>
+            <div class="stanza"><span class="n">1</span><div>Ci parli di te,<br>per noi spezzi il pane,<br>ti riconosciamo<br>e il cuore arde: sei tu!</div></div>
+            <div class="marker"><span>℟.</span><span>Ritornello</span></div>
+          </div>
+        </div>
+      </div>
+      <nav class="stepper">
+        <span></span>
+        <span class="pos">1 / 10</span>
+        <a href="#"><span class="rubric">Atto pen. ›</span><span>Signore pietà</span></a>
+      </nav>
+    </div>
+    <figcaption><b>Pagina canto</b>Si arriva dalla celebrazione: in basso si passa al canto successivo con un tocco. Lo schermo resta acceso da solo (icona evidenziata). Spartiti e YouTube stanno sotto il testo, caricati solo se li apri.</figcaption>
+  </figure>
+
+  <!-- 2. Celebrazione, chiaro -->
+  <figure>
+    <div class="phone">
+      <div class="topbar">
+        <button class="ibtn" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+        <div class="wordmark">Canti Liturgici<small>Parrocchia Santa Chiara</small></div>
+        <span class="spacer"></span>
+        <button class="ibtn" aria-label="Tema scuro"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></svg></button>
+      </div>
+      <div class="scroll">
+        <div class="celeb-head"><h2>Celebrazioni</h2></div>
+        <div class="seg"><button class="on">Messa 10:30</button><button>Messa 12:15</button><button>Adorazione</button></div>
+        <div class="celeb-actions"><span>10 canti</span><span class="pill"><svg viewBox="0 0 24 24"><path d="M12 3v12M7.5 7.5L12 3l4.5 4.5M5 13v6.5h14V13"/></svg>Condividi</span></div>
+        <div class="list">
+          <div class="row"><div><div class="rubric">Ingresso</div><div class="t">Chiamati per nome</div><div class="a">Gen Verde</div></div><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></div>
+          <div class="open-lyrics">
+            <div class="stanza rit"><span class="n" style="color:var(--rubric);font-weight:600">℟.</span><div>Veniamo da te, chiamati per nome…</div></div>
+            <div class="pill" style="margin-top:4px">Apri il canto e gli spartiti</div>
+          </div>
+          <div class="row"><div><div class="rubric">Atto penitenziale</div><div class="t">Signore pietà</div><div class="a">Frisina</div></div><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+          <div class="row"><div><div class="rubric">Gloria</div><div class="t">Gloria a Dio nell'alto dei cieli</div><div class="a">Buttazzo</div></div><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+          <div class="row missing"><div><div class="rubric">Alleluia</div><div class="t">Canto ALL99 non in archivio</div></div><span></span></div>
+        </div>
+      </div>
+    </div>
+    <figcaption><b>Celebrazione</b>Una riga per momento: rubrica rossa, titolo grande, autore. Il testo si apre sotto la riga. Un codice sbagliato nel foglio si vede attenuato invece di rompere la pagina.</figcaption>
+  </figure>
+
+  <!-- 3. Pagina canto, scuro -->
+  <figure>
+    <div class="phone dark">
+      <div class="topbar">
+        <span class="back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Messa 10:30</span>
+        <span class="spacer"></span>
+        <button class="ibtn" aria-label="Dimensione testo"><svg viewBox="0 0 24 24"><path d="M4 18l5-12 5 12M5.8 14h6.4M15 18l3.5-8 3.5 8M16 15.5h5"/></svg></button>
+        <button class="ibtn on" aria-label="Schermo sempre acceso"><svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 8.5v3l2 1.5"/></svg></button>
+        <button class="ibtn" aria-label="Condividi"><svg viewBox="0 0 24 24"><path d="M12 3v12M7.5 7.5L12 3l4.5 4.5M5 13v6.5h14V13"/></svg></button>
+      </div>
+      <div class="scroll">
+        <div class="song">
+          <div class="rubric">Esposizione · A25</div>
+          <h2>Adoro te devote</h2>
+          <div class="by">Tradizionale</div>
+          <div class="lyrics" style="font-size:26px">
+            <div class="stanza"><span class="n">1</span><div>Adoro te devote,<br>latens Deitas,<br>quae sub his figuris<br>vere latitas.</div></div>
+            <div class="stanza"><span class="n">2</span><div>Visus, tactus, gustus<br>in te fallitur,<br>sed auditu solo<br>tuto creditur.</div></div>
+          </div>
+        </div>
+      </div>
+      <nav class="stepper">
+        <span></span>
+        <span class="pos">1 / 9</span>
+        <a href="#"><span class="rubric">Adorazione 1 ›</span><span>Resto con te</span></a>
+      </nav>
+    </div>
+    <figcaption><b>Tema "veglia"</b>Per adorazioni e messe serali: stesso disegno, l'oro prende il posto del rosso. Qui il testo è già ingrandito a 26px, come lo userebbe chi legge dal leggio.</figcaption>
+  </figure>
+
+  <!-- 4. Home, chiaro -->
+  <figure>
+    <div class="phone">
+      <div class="topbar">
+        <button class="ibtn" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+        <div class="wordmark">Canti Liturgici<small>Parrocchia Santa Chiara</small></div>
+        <span class="spacer"></span>
+        <button class="ibtn" aria-label="Tema scuro"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></svg></button>
+      </div>
+      <div class="scroll">
+        <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>Titolo, autore, codice o parole</div>
+        <div class="chips"><span class="lab">Momento</span><span class="chip">Tutti</span><span class="chip on">Comunione</span><span class="chip">Finale</span></div>
+        <div class="chips"><span class="lab">Tempo liturgico</span><span class="chip">Tutti</span><span class="chip on">Quaresima</span><span class="chip">Pasqua</span></div>
+        <div class="count">1 canto · comunione + quaresima</div>
+        <div class="songrow"><span class="id">E8</span><div><div class="t">Emmanuel</div><div class="a">Giornata Mondiale Gioventù</div></div><span class="play"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg></span></div>
+        <div class="count" style="padding-top:18px">Senza filtri: 258 canti, stessa riga per ognuno.</div>
+        <div class="songrow"><span class="id">A1</span><div><div class="t">Acclamate al Signore</div><div class="a">Rinaldi, RnS</div></div><span class="play"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg></span></div>
+        <div class="songrow"><span class="id">A2</span><div><div class="t">Acclamate al Signore</div><div class="a">Frisina</div></div><span class="play"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg></span></div>
+      </div>
+    </div>
+    <figcaption><b>Archivio</b>Le card diventano righe: in uno schermo si vedono 6–7 canti invece di 2. Tocchi la riga per aprire il canto, il triangolo per YouTube. Due righe di filtri: Momento e Tempo liturgico.</figcaption>
+  </figure>
+</div>
+
+<section class="notes">
+  <div>
+    <h3>Cosa cambia rispetto a oggi</h3>
+    <ul>
+      <li>Niente emoji nei pulsanti: icone disegnate, tutte uguali.</li>
+      <li>Titoli dei canti in Garamond normale invece che tutto maiuscolo: più facili da leggere in fretta.</li>
+      <li>Ritornello distinto da ℟ rosso, grassetto e fondo leggero, al posto della barra laterale.</li>
+      <li>Archivio a righe, non a card.</li>
+      <li>Passaggio al canto successivo dalla pagina canto.</li>
+    </ul>
+  </div>
+  <div>
+    <h3>Cosa resta</h3>
+    <ul>
+      <li>Colori, font, tema chiaro/scuro.</li>
+      <li>Menu laterale, ricerca, celebrazioni, suggerimenti.</li>
+      <li>Accesso admin nascosto (5 tocchi sul nome della parrocchia).</li>
+    </ul>
+  </div>
+  <div>
+    <h3>iPad</h3>
+    <ul>
+      <li>Archivio su due colonne.</li>
+      <li>Testo del canto in una colonna centrale larga al massimo ~60 caratteri per riga, con margini ampi sul leggio.</li>
+    </ul>
+  </div>
+</section>
+</body>
+</html>
