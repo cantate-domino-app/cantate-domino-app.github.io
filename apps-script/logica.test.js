@@ -119,3 +119,11 @@ test('tentativiSuperati: dal quinto tentativo sbagliato', () => {
     assert.equal(L.tentativiSuperati(4), false)
     assert.equal(L.tentativiSuperati(5), true)
 })
+
+test('cellaSicura: un testo che inizia come una formula resta testo', () => {
+    assert.equal(L.cellaSicura('=HYPERLINK("x";"y")'), '\'=HYPERLINK("x";"y")')
+    assert.equal(L.cellaSicura('+39 333'), '\'+39 333')
+    assert.equal(L.cellaSicura('@utente'), '\'@utente')
+    assert.equal(L.cellaSicura('Ave Maria'), 'Ave Maria')
+    assert.equal(L.cellaSicura(3), '3')
+})

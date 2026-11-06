@@ -21,7 +21,7 @@ function righeDi(dati, celebrazione) {
         .map(nuovaRiga)
 }
 
-function Accesso({ nome, sblocca }) {
+function Accesso({ nome, sblocca, avviso, onSbloccata }) {
     const [password, setPassword] = useState('')
     const [stato, setStato] = useState({ invio: false, errore: null })
 
@@ -30,11 +30,12 @@ function Accesso({ nome, sblocca }) {
         setStato({ invio: true, errore: null })
         const risposta = await sblocca(password)
         if (!risposta.ok) setStato({ invio: false, errore: risposta.errore })
+        else onSbloccata()
     }
 
     return (
         <form className="suggest-form" onSubmit={invia}>
-            {stato.errore && <div className="suggest-error-banner" role="alert">{stato.errore}</div>}
+            {(stato.errore || avviso) && <div className="suggest-error-banner" role="alert">{stato.errore || avviso}</div>}
             <p>Per modificare le celebrazioni di {nome} serve la password del coro.</p>
             <div className="form-group">
                 <label htmlFor="password-coro">Password del coro</label>
@@ -144,7 +145,12 @@ export default function EditCelebrationsPage() {
             </header>
 
             {!sbloccata ? (
-                <Accesso nome={nome} sblocca={sblocca} />
+                <Accesso
+                    nome={nome}
+                    sblocca={sblocca}
+                    avviso={stato.errore}
+                    onSbloccata={() => setStato({ invio: false, errore: null, ok: null })}
+                />
             ) : (
                 <div className="suggest-form">
                     {stato.errore && <div className="suggest-error-banner" role="alert">{stato.errore}</div>}

@@ -108,3 +108,10 @@ function convertiCelebrazioniVecchie(csvRighe, slug) {
 function tentativiSuperati(conteggio) {
     return conteggio >= MAX_TENTATIVI
 }
+
+// Testo libero (anche dal modulo pubblico) scritto nel foglio: "=..." diventerebbe una formula.
+// L'apostrofo iniziale lo forza a testo e il foglio non lo mostra.
+function cellaSicura(valore) {
+    var testo = valore == null ? '' : String(valore)
+    return /^[=+\-@]/.test(testo) ? "'" + testo : testo
+}

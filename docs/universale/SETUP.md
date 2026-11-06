@@ -19,6 +19,7 @@ Nel Drive di Andrea c'è il file **"Canti Liturgici — database"**: è una copi
 
 1. Tornare al foglio e ricaricare la pagina. Dopo qualche secondo compare il menu **Canti Liturgici**.
 2. **Canti Liturgici → Prepara database**. Google chiede le autorizzazioni la prima volta: "Rivedi autorizzazioni" → scegliere il proprio account → "Avanzate" → "Vai al progetto" → "Consenti".
+   - Rinomina in `Canti` la scheda dei canti (quella con le colonne ID e Titolo). Il nome non va più cambiato.
    - Crea le schede `Raccoglitori`, `Parrocchie`, `Celebrazioni`, `Proposte`.
    - Rinomina la vecchia scheda delle celebrazioni in "Celebrazioni (vecchio)" e ne copia le righe nella parrocchia "Santa Chiara".
    - Crea la parrocchia "Santa Chiara" e mette nel suo raccoglitore tutti i canti di oggi, con riferimento uguale al codice.

@@ -168,3 +168,26 @@ test('creaParrocchia: slug stabile, doppione rifiutato, parte con raccoglitore v
     assert.deepEqual(f.get({ azione: 'celebrazioni', parrocchia: 'san-nicolo' }).raccoglitore, [])
     assert.doesNotMatch(JSON.stringify(f.scheda('Parrocchie').valori), /coro-sn/)
 })
+
+test('proponiCanto: un titolo che sembra una formula viene scritto come testo', () => {
+    const f = nuovoFoglio()
+    assert.equal(f.post({ azione: 'proponiCanto', titolo: '=IMPORTDATA("https://x")', note: '-1' }).ok, true)
+    const riga = f.scheda('Proposte').valori.at(-1)
+    assert.ok(riga.includes('\'=IMPORTDATA("https://x")'))
+    assert.ok(riga.includes('\'-1'))
+})
+
+test('preparaDatabase rinomina in "Canti" la scheda del catalogo, anche se non è la prima', () => {
+    const f = finta({
+        Altro: [['Appunti'], ['x']],
+        Foglio1: [['ID', 'Titolo', 'Autori', 'Tag', 'Link Youtube', 'Testo', 'Note'], ['A1', 'Acclamate', '', '', '', '', '']],
+    })
+    f.S.preparaDatabase()
+    assert.ok(f.scheda('Canti'))
+    assert.equal(f.get({ azione: 'catalogo' }).canti[0].ID, 'A1')
+})
+
+test('catalogo: senza scheda "Canti" risponde con un errore, non con la prima scheda', () => {
+    const f = finta({ Proposte: [['Id', 'Titolo'], ['p1', 'Ave']] })
+    assert.equal(f.get({ azione: 'catalogo' }).ok, false)
+})

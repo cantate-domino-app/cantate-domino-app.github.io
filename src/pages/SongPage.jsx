@@ -64,7 +64,10 @@ function BinderEditor({ song, riferimento }) {
     const { dati, sbloccata, scriviApi, aggiornaDati } = useParrocchia()
     const [valore, setValore] = useState(null)
     const [stato, setStato] = useState({ invio: false, errore: null })
-    if (!sbloccata || !dati) return null
+    // Se la password è scaduta durante il salvataggio, l'errore resta visibile
+    if (!sbloccata || !dati) {
+        return stato.errore ? <p className="suggest-error-banner binder-editor" role="alert">{stato.errore}</p> : null
+    }
 
     const proposto = riferimentoProposto(dati.raccoglitore.map((r) => r.riferimento), prefissoDi(song.id))
 

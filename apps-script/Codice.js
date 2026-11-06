@@ -28,8 +28,9 @@ function foglio() {
 }
 
 function schedaCanti() {
-    // Nel foglio di oggi la scheda dei canti è la prima; il nome può variare.
-    return foglio().getSheetByName(SCHEDE.canti) || foglio().getSheets()[0]
+    var scheda = foglio().getSheetByName(SCHEDE.canti)
+    if (!scheda) throw new Error('Manca la scheda "Canti": usa il menu Canti Liturgici → Prepara database.')
+    return scheda
 }
 
 function leggiTabella(scheda) {
@@ -56,7 +57,7 @@ function leggi(nome) {
 function scrivi(nome, oggetti) {
     var scheda = foglio().getSheetByName(nome)
     var righe = [COLONNE[nome].map(function (c) { return c[0] })].concat(oggetti.map(function (o) {
-        return COLONNE[nome].map(function (c) { return o[c[1]] == null ? '' : String(o[c[1]]) })
+        return COLONNE[nome].map(function (c) { return cellaSicura(o[c[1]]) })
     }))
     scheda.clearContents()
     // Formato testo: "10:30" o "1/2" non devono diventare orari o date.
@@ -65,7 +66,7 @@ function scrivi(nome, oggetti) {
 
 function aggiungi(nome, oggetto) {
     foglio().getSheetByName(nome).appendRow(COLONNE[nome].map(function (c) {
-        return oggetto[c[1]] == null ? '' : String(oggetto[c[1]])
+        return cellaSicura(oggetto[c[1]])
     }))
 }
 
@@ -251,7 +252,7 @@ var AZIONI_ADMIN = {
                 Testo: proposta.testo,
                 Note: youtube || !proposta.link ? proposta.note : [proposta.note, proposta.link].filter(String).join(' — '),
             }
-            canti.appendRow(intestazione.map(function (nome) { return valori[nome] || '' }))
+            canti.appendRow(intestazione.map(function (nome) { return cellaSicura(valori[nome]) }))
             proposta.stato = 'accettata'
             proposta.cantoAssegnato = codice
             scrivi(SCHEDE.proposte, proposte)
@@ -359,6 +360,15 @@ function onOpen() {
 // Idempotente: si può lanciare più volte senza duplicare nulla.
 function preparaDatabase() {
     var f = foglio()
+    // La scheda del catalogo (nel foglio di oggi si chiama come capita) prende il nome "Canti"
+    if (!f.getSheetByName(SCHEDE.canti)) {
+        var catalogo = f.getSheets().filter(function (scheda) {
+            var intestazione = leggiTabella(scheda).intestazione
+            return intestazione.indexOf('ID') >= 0 && intestazione.indexOf('Titolo') >= 0
+        })[0]
+        if (!catalogo) throw new Error('Non trovo la scheda dei canti (colonne ID e Titolo).')
+        catalogo.setName(SCHEDE.canti)
+    }
     var vecchie = null
     // La vecchia scheda delle celebrazioni si riconosce dalle colonne, qualunque sia il nome.
     f.getSheets().forEach(function (scheda) {
