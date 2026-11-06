@@ -1,55 +1,44 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useCallback } from 'react'
+import { chiamaApi } from '../lib/api'
 
 const AdminContext = createContext()
-const ADMIN_STORAGE_KEY = 'canti_admin_auth'
+// sessionStorage: la password admin si dimentica alla chiusura della scheda
+const CHIAVE = 'admin_password'
 
-// SHA-256 del PIN — il valore in chiaro non è più nel sorgente
-const ADMIN_PIN_HASH = '7611f1a57f80b0a87b4178e2e5f16bafa30dd0d9947d99f953c091d8c96abd0e'
-
-async function sha256(text) {
-    const encoded = new TextEncoder().encode(text)
-    const hashBuffer = await crypto.subtle.digest('SHA-256', encoded)
-    const hashArray = Array.from(new Uint8Array(hashBuffer))
-    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+function leggiPassword() {
+    try {
+        return sessionStorage.getItem(CHIAVE)
+    } catch {
+        return null
+    }
 }
 
 export function AdminProvider({ children }) {
-    const [isAdmin, setIsAdmin] = useState(false)
-    const [showLoginModal, setShowLoginModal] = useState(false)
+    const [password, setPassword] = useState(leggiPassword)
 
-    useEffect(() => {
-        const savedAuth = localStorage.getItem(ADMIN_STORAGE_KEY)
-        if (savedAuth === 'true') {
-            setIsAdmin(true)
-        }
+    const logout = useCallback(() => {
+        sessionStorage.removeItem(CHIAVE)
+        setPassword(null)
     }, [])
 
-    const loginWithPin = async (enteredPin) => {
-        const hash = await sha256(enteredPin.trim())
-        if (hash === ADMIN_PIN_HASH) {
-            localStorage.setItem(ADMIN_STORAGE_KEY, 'true')
-            setIsAdmin(true)
-            setShowLoginModal(false)
-            return { success: true }
+    // La password è verificata dallo script: elencoProposte risponde solo all'admin
+    const accedi = useCallback(async (tentativo) => {
+        const risposta = await chiamaApi('elencoProposte', { adminPassword: tentativo })
+        if (risposta.ok) {
+            sessionStorage.setItem(CHIAVE, tentativo)
+            setPassword(tentativo)
         }
-        return { success: false, error: 'PIN non corretto' }
-    }
+        return risposta
+    }, [])
 
-    const logout = () => {
-        localStorage.removeItem(ADMIN_STORAGE_KEY)
-        setIsAdmin(false)
-    }
+    const chiamaAdmin = useCallback(async (azione, dati = {}) => {
+        const risposta = await chiamaApi(azione, { adminPassword: password, ...dati })
+        if (!risposta.ok && risposta.errore === 'Password admin non corretta.') logout()
+        return risposta
+    }, [password, logout])
 
     return (
-        <AdminContext.Provider
-            value={{
-                isAdmin,
-                showLoginModal,
-                setShowLoginModal,
-                loginWithPin,
-                logout,
-            }}
-        >
+        <AdminContext.Provider value={{ isAdmin: !!password, accedi, chiamaAdmin, logout }}>
             {children}
         </AdminContext.Provider>
     )

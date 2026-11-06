@@ -1304,6 +1304,28 @@ h3 {
   font: inherit;
 }
 
+.admin-sezione {
+  margin: 1.5rem 0 0.75rem;
+  font-family: var(--font-display);
+}
+
+.admin-proposta-titolo {
+  font-size: 1.2rem;
+}
+
+.admin-testo {
+  white-space: pre-wrap;
+  font-family: inherit;
+}
+
+.admin-parrocchia {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .suggest-error-banner {
   padding: 0.75rem 1rem;
   border-radius: var(--radius);

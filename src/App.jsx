@@ -5,7 +5,6 @@ import { ThemeProvider } from './context/ThemeContext'
 import { ParrocchiaProvider, useParrocchia } from './context/ParrocchiaContext'
 
 import Navbar from './components/Navbar'
-import AdminModal from './components/AdminModal'
 import HomePage from './pages/HomePage'
 import SongPage from './pages/SongPage'
 import DailySongsPage from './pages/DailySongsPage'
@@ -45,7 +44,6 @@ export default function App() {
                   <Route path="/admin" element={<AdminPage />} />
                 </Routes>
               </main>
-              <AdminModal />
             </div>
           </Router>
         </AdminProvider>
