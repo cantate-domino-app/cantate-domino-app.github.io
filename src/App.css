@@ -1332,12 +1332,17 @@ h3 {
   }
 }
 
+/* Movimento ridotto: finestre e menu compaiono subito, senza scivolare */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+  .sidebar,
+  .sidebar.open,
+  .backdrop,
+  .admin-modal-overlay,
+  .admin-modal-card,
+  .ios-prompt-overlay,
+  .ios-prompt-card {
+    animation: none;
+    transition: none;
   }
 }
 

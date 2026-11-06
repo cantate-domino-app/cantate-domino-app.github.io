@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import Icon from '../components/Icon'
 
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzbGK0hPvNUNyq5cLUWC9vb11Nm3S0jVGx9fXBvYk2Pp5mUdp7ozzsQbRp0mwrnMX9/exec'
 
@@ -73,10 +74,13 @@ export default function SuggestPage() {
 
     return (
         <section className="suggest-page-container">
-            <Link to="/" className="back-link">← Torna all'elenco</Link>
+            <Link to="/" className="back-link">
+                <Icon name="chevron-left" />
+                <span>Archivio</span>
+            </Link>
 
             <header className="suggest-header">
-                <h2>Suggerisci un Canto </h2>
+                <h2>Suggerisci un canto</h2>
                 <p className="suggest-subtitle">
                     Proponi un brano per arricchire il repertorio del coro e le celebrazioni parrocchiali.
                 </p>
@@ -84,12 +88,12 @@ export default function SuggestPage() {
 
             {status.success ? (
                 <div className="suggest-success-card">
-                    <div className="success-icon">✓</div>
+                    <div className="success-icon"><Icon name="check" size={28} /></div>
                     <h3>Grazie per la proposta!</h3>
                     <p>Il canto è stato inviato e salvato nell'archivio delle proposte.</p>
                     <button
                         type="button"
-                        className="btn-new-suggestion"
+                        className="btn btn-new-suggestion"
                         onClick={() => setStatus({ submitting: false, success: false, error: null })}
                     >
                         Suggerisci un altro canto
@@ -98,7 +102,7 @@ export default function SuggestPage() {
             ) : (
                 <form onSubmit={handleSubmit} className="suggest-form">
                     {status.error && (
-                        <div className="suggest-error-banner">
+                        <div className="suggest-error-banner" role="alert">
                             {status.error}
                         </div>
                     )}
@@ -120,7 +124,7 @@ export default function SuggestPage() {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="author">Autore o Gruppo (opzionale)</label>
+                        <label htmlFor="author">Autore o gruppo <span className="optional">(facoltativo)</span></label>
                         <input
                             type="text"
                             id="author"
@@ -133,7 +137,7 @@ export default function SuggestPage() {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="link">Link YouTube (opzionale)</label>
+                        <label htmlFor="link">Link YouTube <span className="optional">(facoltativo)</span></label>
                         <input
                             type="url"
                             id="link"
@@ -146,7 +150,7 @@ export default function SuggestPage() {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="notes">Aggiungi un commento (opzionale)</label>
+                        <label htmlFor="notes">Commento <span className="optional">(facoltativo)</span></label>
                         <textarea
                             id="notes"
                             name="notes"
@@ -159,7 +163,7 @@ export default function SuggestPage() {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="name">Il tuo nome (opzionale)</label>
+                        <label htmlFor="name">Il tuo nome <span className="optional">(facoltativo)</span></label>
                         <input
                             type="text"
                             id="name"
@@ -173,7 +177,7 @@ export default function SuggestPage() {
 
                     <button
                         type="submit"
-                        className="submit-suggestion-btn"
+                        className="btn btn-primary submit-suggestion-btn"
                         disabled={status.submitting}
                     >
                         {status.submitting ? 'Invio in corso...' : 'Invia Proposta'}

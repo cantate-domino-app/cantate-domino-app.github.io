@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Icon from './Icon'
 
 export function isIosDevice() {
     if (typeof window === 'undefined') return false
@@ -31,61 +32,53 @@ export default function IosInstallPrompt({ showModal, onCloseModal }) {
     // Se né il banner automatico né il modal manuale sono attivi, non renderizzare nulla
     if (!showBanner && !showModal) return null
 
+    const close = showModal ? onCloseModal : handleDismiss
+
     return (
-        <div className="ios-prompt-overlay" onClick={showModal ? onCloseModal : handleDismiss}>
-            <div className="ios-prompt-card" onClick={(e) => e.stopPropagation()}>
+        <div className="ios-prompt-overlay" onClick={close}>
+            <div
+                className="ios-prompt-card"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="ios-prompt-title"
+                onClick={(e) => e.stopPropagation()}
+            >
                 <button
                     type="button"
-                    className="ios-prompt-close"
-                    onClick={showModal ? onCloseModal : handleDismiss}
+                    className="icon-btn ios-prompt-close"
+                    onClick={close}
                     aria-label="Chiudi guida installazione"
                 >
-                    ✕
+                    <Icon name="close" />
                 </button>
 
                 <div className="ios-prompt-header">
-                    <span className="ios-prompt-icon">📲</span>
-                    <div>
-                        <h3>Installa l'App su iPhone</h3>
-                        <p className="ios-prompt-sub">Per aprirla a schermo intero e usarla offline in chiesa</p>
-                    </div>
+                    <h3 id="ios-prompt-title">Installa l'app su iPhone</h3>
+                    <p className="ios-prompt-sub">Per aprirla a schermo intero e usarla offline in chiesa</p>
                 </div>
 
-                <div className="ios-prompt-steps">
-                    <div className="ios-step">
-                        <span className="ios-step-num">1</span>
+                <ol className="ios-prompt-steps">
+                    <li className="ios-step">
                         <p>
                             In Safari, tocca il tasto <strong>Condividi</strong> nella barra in basso{' '}
                             <span className="ios-share-badge">
-                                <svg width="14" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: 'middle', display: 'inline-block' }}>
-                                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                                    <polyline points="16 6 12 2 8 6"></polyline>
-                                    <line x1="12" y1="2" x2="12" y2="15"></line>
-                                </svg>
+                                <Icon name="share" size={18} />
                             </span>
                         </p>
-                    </div>
-
-                    <div className="ios-step">
-                        <span className="ios-step-num">2</span>
+                    </li>
+                    <li className="ios-step">
                         <p>
-                            Scorri il menu e tocca <strong>«Aggiungi alla schermata Home»</strong> ➕
+                            Scorri il menu e tocca <strong>«Aggiungi alla schermata Home»</strong>
                         </p>
-                    </div>
-
-                    <div className="ios-step">
-                        <span className="ios-step-num">3</span>
+                    </li>
+                    <li className="ios-step">
                         <p>
                             Conferma toccando <strong>«Aggiungi»</strong> in alto a destra. Troverai l'icona sul tuo schermo!
                         </p>
-                    </div>
-                </div>
+                    </li>
+                </ol>
 
-                <button
-                    type="button"
-                    className="ios-prompt-btn"
-                    onClick={showModal ? onCloseModal : handleDismiss}
-                >
+                <button type="button" className="btn btn-primary ios-prompt-btn" onClick={close}>
                     Ho capito
                 </button>
             </div>

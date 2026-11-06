@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAdmin } from '../context/AdminContext'
+import Icon from './Icon'
 
 export default function AdminModal() {
     const { showLoginModal, setShowLoginModal, loginWithPin } = useAdmin()
@@ -28,18 +29,24 @@ export default function AdminModal() {
 
     return (
         <div className="admin-modal-overlay" onClick={handleClose}>
-            <div className="admin-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div
+                className="admin-modal-card"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="admin-modal-title"
+                onClick={(e) => e.stopPropagation()}
+            >
                 <button
                     type="button"
-                    className="admin-modal-close"
+                    className="icon-btn admin-modal-close"
                     onClick={handleClose}
                     aria-label="Chiudi"
                 >
-                    ✕
+                    <Icon name="close" />
                 </button>
 
                 <div className="admin-modal-header">
-                    <h3>Sei Luca? 👋</h3>
+                    <h3 id="admin-modal-title">Sei Luca?</h3>
                     <p>Inserisci il PIN per visualizzare gli spartiti personali con le tue note.</p>
                 </div>
 
@@ -50,6 +57,7 @@ export default function AdminModal() {
                         pattern="[0-9]*"
                         maxLength={6}
                         placeholder="••••"
+                        aria-label="PIN"
                         value={pin}
                         onChange={(e) => {
                             setErrorMessage('')
@@ -59,13 +67,13 @@ export default function AdminModal() {
                         className="admin-pin-input"
                     />
 
-                    {errorMessage && <p className="admin-error-msg">{errorMessage}</p>}
+                    {errorMessage && <p className="admin-error-msg" role="alert">{errorMessage}</p>}
 
                     <div className="admin-modal-actions">
-                        <button type="button" className="btn-cancel" onClick={handleClose}>
+                        <button type="button" className="btn" onClick={handleClose}>
                             Annulla
                         </button>
-                        <button type="submit" className="btn-confirm">
+                        <button type="submit" className="btn btn-primary">
                             Sblocca
                         </button>
                     </div>
