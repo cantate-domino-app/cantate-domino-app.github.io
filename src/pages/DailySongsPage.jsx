@@ -7,19 +7,12 @@ import { useFontSize } from '../hooks/useFontSize'
 import { useWakeLock } from '../hooks/useWakeLock'
 import SongLyrics from '../components/SongLyrics'
 import FontSizeControls from '../components/FontSizeControls'
+import Icon from '../components/Icon'
 
 const NO_ROWS = []
 
 const CELEBRAZIONI_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTOuSn2F5KZV-TYnF3yS92H_nEFYCPX_v-VmLtR4nqNXkh6tls7E94FP0ciMGomsPh5H-YBc4lBGFLH/pub?gid=1649967796&single=true&output=csv'
 const CELEBRAZIONI_CACHE_KEY = 'cached_celebrations_schedule_csv'
-
-function getCelebrationIcon(name) {
-    const lower = (name || '').toLowerCase()
-    if (lower.includes('adorazion') || lower.includes('gioved')) return '🕯️'
-    if (lower.includes('fanciull') || lower.includes('bambin') || lower.includes('10:30')) return '👦'
-    if (lower.includes('veglia') || lower.includes('notte')) return '✨'
-    return '⛪'
-}
 
 function parseCelebrationCsv(csvText) {
     const results = Papa.parse(csvText, {
@@ -132,8 +125,10 @@ export default function DailySongsPage() {
     const [fontSize, setFontSize] = useFontSize()
     const wakeLock = useWakeLock()
 
-    // Testi aperti di default: si tiene traccia solo di quelli chiusi
-    const [collapsedLyrics, setCollapsedLyrics] = useState({})
+    const [showTextSize, setShowTextSize] = useState(false)
+
+    // Testi chiusi di default: si apre una riga alla volta
+    const [openLyrics, setOpenLyrics] = useState({})
 
     const allScheduleRows = schedule?.parsedRows ?? NO_ROWS
     const celebrations = schedule?.uniqueCelebs ?? NO_ROWS
@@ -149,7 +144,7 @@ export default function DailySongsPage() {
     }, [urlParam, celebrations])
 
     const toggleLyrics = (keyId) => {
-        setCollapsedLyrics((prev) => ({
+        setOpenLyrics((prev) => ({
             ...prev,
             [keyId]: !prev[keyId]
         }))
@@ -177,6 +172,12 @@ export default function DailySongsPage() {
             }
         })
     }, [currentSchedule, songs])
+
+    // Canti presenti in archivio, nell'ordine della celebrazione: servono alle frecce della pagina canto
+    const queue = useMemo(
+        () => matchedSchedule.filter((r) => r.song).map((r) => ({ id: r.song.id, moment: r.moment })),
+        [matchedSchedule]
+    )
 
     const handleShareSchedule = async () => {
         const titleText = activeCelebration
@@ -220,40 +221,12 @@ export default function DailySongsPage() {
     return (
         <section className="daily-page-container">
             <header className="daily-header">
-                <div>
-                    <h2>{activeCelebration || 'Canti per la Celebrazione'}</h2>
-                    <p className="daily-subtitle">Guida musicale e testi per la liturgia</p>
-                </div>
-
-                <div className="daily-header-actions">
-                    <FontSizeControls fontSize={fontSize} setFontSize={setFontSize} />
-
-                    {wakeLock.supported && (
-                        <button
-                            type="button"
-                            className={`tool-button ${wakeLock.active ? 'active' : ''}`}
-                            onClick={wakeLock.toggle}
-                            aria-pressed={wakeLock.active}
-                            title="Mantieni lo schermo acceso durante la celebrazione"
-                        >
-                            {wakeLock.active ? '☀️ Schermo Attivo (ON)' : '🌙 Schermo Normale'}
-                        </button>
-                    )}
-
-                    {matchedSchedule.length > 0 && (
-                        <button
-                            type="button"
-                            className="whatsapp-copy-btn"
-                            onClick={handleShareSchedule}
-                            title="Condividi i canti di questa celebrazione"
-                        >
-                            {copied ? '✓ Link Copiato!' : '🔗 Condividi Canti'}
-                        </button>
-                    )}
-                </div>
+                <h2>Celebrazioni</h2>
+                {celebrations.length <= 1 && activeCelebration && (
+                    <p className="daily-subtitle">{activeCelebration}</p>
+                )}
             </header>
 
-            {/* Selettore a schede per le celebrazioni */}
             {celebrations.length > 1 && (
                 <div className="celebration-tabs-nav" role="tablist" aria-label="Seleziona celebrazione">
                     {celebrations.map((celeb) => (
@@ -265,88 +238,134 @@ export default function DailySongsPage() {
                             className={`celebration-tab-btn ${activeCelebration === celeb ? 'active' : ''}`}
                             onClick={() => handleSelectCelebration(celeb)}
                         >
-                            <span className="tab-icon">{getCelebrationIcon(celeb)}</span>
-                            <span className="tab-label">{celeb}</span>
+                            {celeb}
                         </button>
                     ))}
                 </div>
             )}
+
+            <div className="daily-toolbar">
+                <span className="count">
+                    {matchedSchedule.length} {matchedSchedule.length === 1 ? 'canto' : 'canti'}
+                </span>
+                <button
+                    type="button"
+                    className="icon-btn"
+                    aria-pressed={showTextSize}
+                    aria-label="Dimensione del testo"
+                    title="Dimensione del testo"
+                    onClick={() => setShowTextSize((v) => !v)}
+                >
+                    <Icon name="text-size" />
+                </button>
+                {wakeLock.supported && (
+                    <button
+                        type="button"
+                        className="icon-btn"
+                        aria-pressed={wakeLock.active}
+                        aria-label="Schermo sempre acceso"
+                        title={wakeLock.active ? 'Schermo sempre acceso: attivo' : 'Schermo sempre acceso: spento'}
+                        onClick={wakeLock.toggle}
+                    >
+                        <Icon name="screen-on" />
+                    </button>
+                )}
+                {matchedSchedule.length > 0 && (
+                    <button
+                        type="button"
+                        className={`btn ${copied ? 'is-done' : ''}`}
+                        onClick={handleShareSchedule}
+                        title="Condividi i canti di questa celebrazione"
+                    >
+                        <Icon name={copied ? 'check' : 'share'} size={18} />
+                        {copied ? 'Copiato' : 'Condividi'}
+                    </button>
+                )}
+            </div>
+            {showTextSize && <FontSizeControls fontSize={fontSize} setFontSize={setFontSize} />}
 
             {matchedSchedule.length === 0 ? (
                 <div className="empty-schedule">
                     <p>Nessun canto programmato al momento per questa celebrazione.</p>
                 </div>
             ) : (
-                <div className="schedule-timeline">
+                <div className="schedule-list">
                     {matchedSchedule.map((item) => {
-                        const isOpen = !collapsedLyrics[item.keyId]
+                        if (!item.song) {
+                            return (
+                                <article key={item.keyId} className="timeline-item is-missing">
+                                    <div className="timeline-toggle">
+                                        <span className="timeline-text">
+                                            <span className="rubric">{item.moment}</span>
+                                            <span className="timeline-title">Canto {item.songId} non in archivio</span>
+                                            {item.notes && <span className="timeline-author">{item.notes}</span>}
+                                        </span>
+                                    </div>
+                                </article>
+                            )
+                        }
+
+                        const isOpen = !!openLyrics[item.keyId]
+                        const panelId = `testo-${item.keyId}`
+                        const queueIndex = queue.findIndex((q) => q.id === item.song.id && q.moment === item.moment)
 
                         return (
                             <article key={item.keyId} className="timeline-item">
-                                <div className="timeline-badge-moment">
-                                    <span>{item.moment}</span>
-                                </div>
+                                <button
+                                    type="button"
+                                    className="timeline-toggle"
+                                    aria-expanded={isOpen}
+                                    aria-controls={panelId}
+                                    onClick={() => toggleLyrics(item.keyId)}
+                                >
+                                    <span className="timeline-text">
+                                        <span className="rubric">{item.moment}</span>
+                                        <span className="timeline-title">{item.song.title}</span>
+                                        {item.song.author && <span className="timeline-author">{item.song.author}</span>}
+                                    </span>
+                                    <Icon name={isOpen ? 'chevron-up' : 'chevron-down'} />
+                                </button>
 
-                                <div className="timeline-content-card">
-                                    <div className="timeline-card-header">
-                                        <div className="timeline-title-wrap">
-                                            {item.song?.id && (
-                                                <span className="card-id">{item.song.id}</span>
-                                            )}
-                                            <h3>{item.song ? item.song.title : `Canto ${item.songId}`}</h3>
-                                        </div>
-                                        {item.song?.author && (
-                                            <span className="timeline-author">{item.song.author}</span>
+                                {isOpen && (
+                                    <div className="timeline-panel" id={panelId}>
+                                        {item.notes && (
+                                            <div className="timeline-notes">
+                                                <strong>Note:</strong> {item.notes}
+                                            </div>
                                         )}
-                                    </div>
-
-                                    {item.notes && (
-                                        <div className="timeline-notes">
-                                            <strong>Note:</strong> {item.notes}
-                                        </div>
-                                    )}
-
-                                    <div className="timeline-card-controls">
-                                        <button
-                                            type="button"
-                                            className="toggle-lyrics-btn"
-                                            onClick={() => toggleLyrics(item.keyId)}
-                                        >
-                                            {isOpen ? '▲ Nascondi Testo' : '▼ Mostra Testo'}
-                                        </button>
-
-                                        <div className="timeline-right-links">
-                                            {item.song?.youtube && (
+                                        {item.song.lyrics ? (
+                                            <SongLyrics rawLyrics={item.song.lyrics} fontSize={fontSize} />
+                                        ) : (
+                                            <p className="no-lyrics">Testo non ancora inserito per questo canto.</p>
+                                        )}
+                                        <div className="timeline-panel-actions">
+                                            <Link
+                                                to={`/song/${item.song.id}`}
+                                                state={{
+                                                    from: 'daily',
+                                                    celebration: activeCelebration,
+                                                    moment: item.moment,
+                                                    queue,
+                                                    index: queueIndex,
+                                                }}
+                                                className="btn btn-primary"
+                                            >
+                                                Apri canto e spartiti
+                                            </Link>
+                                            {item.song.youtube && (
                                                 <a
                                                     href={item.song.youtube}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="youtube-badge"
+                                                    className="btn"
                                                 >
-                                                    ▶ YouTube
+                                                    <Icon name="play" size={18} />
+                                                    YouTube
                                                 </a>
                                             )}
-                                            {/* Passaggio di state: { from: 'daily' } */}
-                                            <Link
-                                                to={`/song/${item.songId}`}
-                                                state={{ from: 'daily' }}
-                                                className="details-btn"
-                                            >
-                                                Spartiti ↗
-                                            </Link>
                                         </div>
                                     </div>
-
-                                    {isOpen && (
-                                        <div className="timeline-lyrics-box">
-                                            {item.song?.lyrics ? (
-                                                <SongLyrics rawLyrics={item.song.lyrics} fontSize={fontSize} />
-                                            ) : (
-                                                <p className="no-lyrics">Testo non ancora inserito per questo canto.</p>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
+                                )}
                             </article>
                         )
                     })}

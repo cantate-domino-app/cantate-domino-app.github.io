@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link, useLocation } from 'react-router-dom'
 import { useSongs } from '../context/SongsContext'
 import { useAdmin } from '../context/AdminContext'
@@ -75,6 +75,11 @@ export default function SongPage() {
     const wakeLock = useWakeLock()
     const [copied, setCopied] = useState(false)
 
+    // Passando al canto successivo si riparte dall'inizio del testo
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [id])
+
     const shareSong = async (title) => {
         const url = window.location.href
         if (navigator.share) {
@@ -118,8 +123,19 @@ export default function SongPage() {
         : [...song.tags.slice(0, 2), song.id].join(' · ')
     const hasSheets = song.sheetOriginal || (isAdmin && song.sheetModified)
 
+    // Frecce tra i canti della celebrazione (solo se si arriva da lì)
+    const queue = fromDaily?.queue ?? []
+    const index = fromDaily?.index ?? -1
+    const hasStepper = index >= 0 && queue.length > 1
+    const stepLink = (i) => ({
+        to: `/song/${queue[i].id}`,
+        state: { ...fromDaily, index: i, moment: queue[i].moment },
+        replace: true,
+    })
+    const titleOf = (i) => songs.find((s) => s.id === queue[i].id)?.title ?? queue[i].id
+
     return (
-        <article className="song-detail-container">
+        <article className={`song-detail-container ${hasStepper ? 'has-stepper' : ''}`}>
             <div className="song-bar">
                 <Link to={backTo} className="back-link">
                     <Icon name="chevron-left" />
@@ -216,6 +232,24 @@ export default function SongPage() {
                     </div>
                 )}
             </div>
+
+            {hasStepper && (
+                <nav className="song-stepper" aria-label="Canti della celebrazione">
+                    {index > 0 ? (
+                        <Link {...stepLink(index - 1)} className="stepper-link prev">
+                            <span className="rubric"><Icon name="chevron-left" size={14} />{queue[index - 1].moment}</span>
+                            <span className="stepper-title">{titleOf(index - 1)}</span>
+                        </Link>
+                    ) : <span />}
+                    <span className="stepper-pos">{index + 1} / {queue.length}</span>
+                    {index < queue.length - 1 ? (
+                        <Link {...stepLink(index + 1)} className="stepper-link next">
+                            <span className="rubric">{queue[index + 1].moment}<Icon name="chevron-right" size={14} /></span>
+                            <span className="stepper-title">{titleOf(index + 1)}</span>
+                        </Link>
+                    ) : <span />}
+                </nav>
+            )}
         </article>
     )
 }
