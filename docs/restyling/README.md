@@ -41,6 +41,12 @@ La tavola con la direzione grafica è in [direzione.html](direzione.html).
 - Un codice sbagliato nel foglio delle celebrazioni (per esempio "ALDO") ora compare come "Canto ALDO non in archivio" e viene saltato dalle frecce.
 - Il codice duplicato per schermo acceso, cache e dimensione del testo è stato riunito in un solo punto.
 
+**Raccoglitore**
+- Ogni canto mostra se è nel raccoglitore cartaceo ("Nel raccoglitore: A12" oppure "Non nel raccoglitore"). Nell'archivio c'è il filtro "Solo nel raccoglitore".
+- Regola: un canto è nel raccoglitore se ha un riferimento. Si legge da una colonna **Raccoglitore** nel foglio Canti.
+- Finché la colonna non c'è, l'app considera tutti i canti già nel raccoglitore, con riferimento uguale all'ID: oggi non cambia nulla.
+- Per attivarla: aggiungere la colonna "Raccoglitore" in fondo al foglio Canti, scrivere `=A2` nella prima riga e trascinare fino in fondo, poi svuotare la cella dei canti che non sono nel raccoglitore. Se un giorno il riferimento è diverso dall'ID, basta scriverlo nella cella.
+
 **Cosa non è cambiato**
 - Il foglio Google e le sue colonne.
 - I link già condivisi su WhatsApp, anche quelli vecchi con `?messa=`.

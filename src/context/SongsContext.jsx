@@ -2,6 +2,7 @@ import { createContext, useContext, useMemo } from 'react'
 import Papa from 'papaparse'
 import { useCachedCsv } from '../hooks/useCachedCsv'
 import { buildSearchIndex } from '../lib/search'
+import { trovaColonnaRaccoglitore, riferimentoRaccoglitore } from '../lib/raccoglitore'
 
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTOuSn2F5KZV-TYnF3yS92H_nEFYCPX_v-VmLtR4nqNXkh6tls7E94FP0ciMGomsPh5H-YBc4lBGFLH/pub?gid=0&single=true&output=csv'
 const CACHE_KEY = 'cached_songs_catalog_csv'
@@ -11,6 +12,7 @@ function parseCsvData(csvText) {
         header: true,
         skipEmptyLines: true,
     })
+    const colonnaRaccoglitore = trovaColonnaRaccoglitore(results.meta.fields || [])
     return (results.data || [])
         .filter((item) => item.Titolo && item.Titolo.trim() !== '')
         .map((item) => ({
@@ -22,7 +24,8 @@ function parseCsvData(csvText) {
             sheetOriginal: (item['Spartito Originale'] || '').trim(),
             sheetModified: (item['Spartito Modificato'] || '').trim(),
             lyrics: (item.Testo || '').trim(),
-            notes: (item.Note || '').trim()
+            notes: (item.Note || '').trim(),
+            binder: riferimentoRaccoglitore(item, colonnaRaccoglitore)
         }))
 }
 

@@ -34,6 +34,8 @@ export default function HomePage() {
     const [search, setSearch] = useState('')
     const [selectedMomento, setSelectedMomento] = useState(TUTTI)
     const [selectedTempo, setSelectedTempo] = useState(TUTTI)
+    const [soloRaccoglitore, setSoloRaccoglitore] = useState(false)
+    const qualcunoFuori = useMemo(() => songs.some((s) => !s.binder), [songs])
 
     // Tag distinti divisi tra momenti della messa e tempi liturgici, in ordine alfabetico
     const { momenti, tempi } = useMemo(() => {
@@ -47,9 +49,10 @@ export default function HomePage() {
     const filteredSongs = useMemo(() => {
         return searchSongs(searchIndex, search).filter((song) =>
             (selectedMomento === TUTTI || song.tags.includes(selectedMomento)) &&
-            (selectedTempo === TUTTI || song.tags.includes(selectedTempo))
+            (selectedTempo === TUTTI || song.tags.includes(selectedTempo)) &&
+            (!soloRaccoglitore || song.binder)
         )
-    }, [searchIndex, search, selectedMomento, selectedTempo])
+    }, [searchIndex, search, selectedMomento, selectedTempo, soloRaccoglitore])
 
     const activeFilters = [selectedMomento, selectedTempo].filter((t) => t !== TUTTI)
 
@@ -92,6 +95,16 @@ export default function HomePage() {
                 <span>
                     {filteredSongs.length} {filteredSongs.length === 1 ? 'canto trovato' : 'canti trovati'}
                 </span>
+                {qualcunoFuori && (
+                    <button
+                        type="button"
+                        className={`tag-chip ${soloRaccoglitore ? 'active' : ''}`}
+                        aria-pressed={soloRaccoglitore}
+                        onClick={() => setSoloRaccoglitore((v) => !v)}
+                    >
+                        Solo nel raccoglitore
+                    </button>
+                )}
                 {activeFilters.length > 0 && (
                     <button
                         type="button"

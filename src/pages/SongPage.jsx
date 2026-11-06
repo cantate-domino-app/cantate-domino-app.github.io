@@ -182,6 +182,9 @@ export default function SongPage() {
                     <div className="rubric">{rubric}</div>
                     <h1>{song.title}</h1>
                     {song.author && <p className="song-subtitle">{song.author}</p>}
+                    <p className={`song-binder ${song.binder ? '' : 'is-missing'}`}>
+                        {song.binder ? `Nel raccoglitore: ${song.binder}` : 'Non nel raccoglitore'}
+                    </p>
                 </div>
             </header>
 
