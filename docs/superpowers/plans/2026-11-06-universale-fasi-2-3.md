@@ -21,8 +21,8 @@
 - Nome provvisorio **"Canti Liturgici"**, definito in un solo punto (`src/config.js` + `vite.config.js` lo importa). Nessuna occorrenza di "Santa Chiara" nell'interfaccia.
 - Base path da variabile `BASE_PATH` (default `/canti-liturgici/`); URL dello script da `VITE_API_URL`.
 - Lettura dell'archivio: **senza login**. Modifica celebrazioni: **nome parrocchia + password condivisa**, verificata **sul server**. Le parrocchie le crea solo l'admin.
-- Le celebrazioni usano **solo canti dell'archivio comune**. I nuovi canti ricevono un **ID automatico `N<numero>`** che non collide con gli ID manuali.
-- Gli ID esistenti restano invariati.
+- Le celebrazioni usano **solo canti dell'archivio comune**. Gli ID esistenti restano invariati. Per un canto nuovo l'admin vede un **codice proposto** (iniziale del titolo + primo numero libero nell'archivio, es. `A27`) e può cambiarlo.
+- **Raccoglitore per parrocchia** (richiesta di Luca): il codice dell'archivio NON è la posizione nel raccoglitore cartaceo. Ogni parrocchia ha il suo elenco `Canto_ID → Riferimento`. Un canto è nel raccoglitore della parrocchia se ha un riferimento. Santa Chiara parte dai riferimenti di oggi (colonna "Raccoglitore" del foglio, oppure l'ID se la colonna non c'è); le altre parrocchie partono vuote. I canti aggiunti da altre parrocchie non occupano numeri nel raccoglitore di Luca.
 - Password: SHA-256 con sale casuale per parrocchia. Mai in chiaro nel foglio, nel repo o nell'URL. La password admin sta nelle Script Properties come hash.
 - Massimo **5 tentativi sbagliati ogni 10 minuti** per parrocchia/admin (CacheService).
 - UI, commenti, commit in italiano. Restano valide tutte le regole grafiche di `DESIGN.md`.
@@ -65,7 +65,9 @@
 **Interfaces (funzioni globali in `Logica.js`, niente import/export: Apps Script non li supporta):**
 - `creaSlug(nome: string) → string`: minuscolo, senza accenti, solo `[a-z0-9-]`, trattini singoli, senza trattini ai bordi. "S. Maria Assunta" → `s-maria-assunta`; "San Nicolò" → `san-nicolo`
 - `hashPassword(password: string, sale: string, digest: (bytes) => number[]) → string`: esadecimale di `digest(sale + password)`. `digest` viene iniettato (in Apps Script `Utilities.computeDigest`, nei test `crypto`)
-- `prossimoIdNuovo(ids: string[]) → string`: `N` + (massimo numero tra gli ID `N\d+` + 1), partendo da `N1`
+- `codiceProposto(titolo: string, ids: string[]) → string`: iniziale del titolo senza accenti, maiuscola + primo numero libero per quel prefisso (es. "Ave Maria" con A1..A26 → `A27`; buchi riempiti: A1, A3 → `A2`)
+- `riferimentoProposto(riferimenti: string[], prefisso: string) → string`: stesso calcolo, ma sui riferimenti del raccoglitore di una parrocchia
+- `riferimentiIniziali(righeCanti, colonnaRaccoglitore) → [{cantoId, riferimento}]`: per Santa Chiara, dal valore della colonna "Raccoglitore" (se esiste) oppure dall'ID; righe con riferimento vuoto saltate
 - `validaRighe(righe) → { ok: true, righe } | { ok: false, errore: string }`: ogni riga ha `momento` (1-60 caratteri) e `cantoId` (esistente, passato come insieme `idValidi`), più `note` opzionali (max 200). Massimo 40 righe. Firma: `validaRighe(righe, idValidi: Set<string>)`
 - `sostituisciCelebrazione(tutte: Riga[], parrocchia, celebrazione, nuove: Riga[]) → Riga[]`: toglie le righe di quella parrocchia+celebrazione e aggiunge le nuove con `ordine` 1..n. Non tocca le altre
 - `convertiCelebrazioniVecchie(csvRighe: string[][], slug) → Riga[]`: dal formato attuale (`Celebrazione, Momento, Canto_ID, Note`, celebrazione vuota = eredita la precedente, colonne in più ignorate, righe senza Canto_ID saltate) al nuovo
@@ -74,7 +76,9 @@
 - [ ] **Step 1: Test che falliscono** in `apps-script/logica.test.js`, uno per regola:
   - `creaSlug('San Nicolò') === 'san-nicolo'`, `creaSlug('  S. Maria  Assunta ') === 's-maria-assunta'`
   - `hashPassword` deterministico con lo stesso sale, diverso con sale diverso
-  - `prossimoIdNuovo(['A1','N2','n7','N'])` → `'N8'`; `prossimoIdNuovo(['A1'])` → `'N1'`
+  - `codiceProposto('Ave Maria', ['A1','A2','B1'])` → `'A3'`; `codiceProposto('Ève', ['E1'])` → `'E2'`; con buco `['A1','A3']` → `'A2'`
+  - `riferimentoProposto(['A1','A2'], 'A')` → `'A3'`; `riferimentoProposto([], 'C')` → `'C1'`
+  - `riferimentiIniziali`: senza colonna → riferimento = ID per tutti; con colonna → solo le righe compilate
   - `validaRighe` rifiuta: ID inesistente (errore contiene l'ID), momento vuoto, 41 righe
   - `sostituisciCelebrazione` lascia invariate le righe di altre parrocchie e altre celebrazioni *(Review Focus 3)*
   - `convertiCelebrazioniVecchie` sul CSV reale di oggi (fixture copiata da `celeb.csv`): 28 righe, la "Messa 12:15 / Padre Nostro" senza canto è saltata, "ALDO" ignorato (sta in una colonna in più)
@@ -90,26 +94,28 @@
 
 **Interfaces:**
 - Consumes: le funzioni di `Logica.js` (Task 2).
-- Schede del foglio: `Canti` (come oggi); `Parrocchie` (`Slug, Nome, Città, Sale, PasswordHash`); `Celebrazioni` (`Parrocchia, Celebrazione, Ordine, Momento, Canto_ID, Note`); `Proposte` (`Id, Data, Parrocchia, Titolo, Autore, Link, Testo, Note, Nome, Stato, CantoAssegnato`). La vecchia scheda viene rinominata `Celebrazioni (vecchio)`.
+- Schede del foglio: `Canti` (come oggi); `Raccoglitori` (`Parrocchia, Canto_ID, Riferimento`); `Parrocchie` (`Slug, Nome, Città, Sale, PasswordHash`); `Celebrazioni` (`Parrocchia, Celebrazione, Ordine, Momento, Canto_ID, Note`); `Proposte` (`Id, Data, Parrocchia, Titolo, Autore, Link, Testo, Note, Nome, Stato, CantoAssegnato`). La vecchia scheda viene rinominata `Celebrazioni (vecchio)`.
 - **GET** `?azione=`:
   - `catalogo` → `{ canti: [{ID,Titolo,Autori,Tag,...}] }` (stesse colonne del CSV)
   - `parrocchie` → `{ parrocchie: [{slug, nome, citta}] }`
-  - `celebrazioni&parrocchia=<slug>` → `{ parrocchia: {slug,nome,citta}, righe: [{celebrazione, ordine, momento, cantoId, note}] }`
+  - `celebrazioni&parrocchia=<slug>` → `{ parrocchia: {slug,nome,citta}, righe: [{celebrazione, ordine, momento, cantoId, note}], raccoglitore: [{cantoId, riferimento}] }`
 - **POST** (corpo `text/plain` con JSON `{azione, ...}`, risposta letta davvero, niente `no-cors`). Ognuna risponde `{ ok: true, ... }` oppure `{ ok: false, errore: "<messaggio in italiano>" }`:
   - `verificaParrocchia {parrocchia, password}`
   - `salvaCelebrazione {parrocchia, password, celebrazione, righe}`
   - `eliminaCelebrazione {parrocchia, password, celebrazione}`
+  - `salvaRiferimento {parrocchia, password, cantoId, riferimento}`: riferimento vuoto = tolto dal raccoglitore. Errore se lo stesso riferimento è già usato da un altro canto della parrocchia
   - `proponiCanto {parrocchia?, titolo, autore?, link?, testo?, note?, nome?}`
-  - admin `{adminPassword, ...}`: `elencoProposte`, `accettaProposta {id, tag?}` (crea il canto con `prossimoIdNuovo`), `rifiutaProposta {id}`, `creaParrocchia {nome, citta, password}`, `impostaPassword {parrocchia, password}`
+  - admin `{adminPassword, ...}`: `elencoProposte` (ogni proposta con `codiceProposto`), `accettaProposta {id, codice, tag?}` (crea il canto con il codice scelto; errore se il codice esiste già), `rifiutaProposta {id}`, `creaParrocchia {nome, citta, password}`, `impostaPassword {parrocchia, password}`
 - Password sbagliata e parrocchia inesistente danno **lo stesso** errore: "Parrocchia o password non corretti". Dopo 5 tentativi: "Troppi tentativi, riprova tra 10 minuti" *(Review Focus 2)*.
 - Le scritture usano `LockService.getScriptLock()` (attesa max 10 s) *(Review Focus 3)*.
-- Menu nel foglio "Canti Liturgici": **Prepara database** (crea le schede mancanti, converte le vecchie celebrazioni con `convertiCelebrazioniVecchie` assegnandole allo slug `santa-chiara`, crea la parrocchia "Santa Chiara" senza password) e **Imposta password admin** (`SpreadsheetApp.getUi().prompt`, salva hash e sale nelle Script Properties). Entrambe idempotenti.
+- Menu nel foglio "Canti Liturgici": **Prepara database** (crea le schede mancanti, converte le vecchie celebrazioni con `convertiCelebrazioniVecchie` assegnandole allo slug `santa-chiara`, crea la parrocchia "Santa Chiara" senza password, riempie `Raccoglitori` per Santa Chiara con `riferimentiIniziali`) e **Imposta password admin** (`SpreadsheetApp.getUi().prompt`, salva hash e sale nelle Script Properties). Entrambe idempotenti.
 
 - [ ] **Step 1:** Implementare `Codice.js`. Ogni handler fa: valida input → `LockService` (solo scritture) → legge la scheda → logica di `Logica.js` → scrive → risponde con `ContentService` JSON.
 - [ ] **Step 2:** Verifica statica: `node -e` carica `Logica.js` + `Codice.js` in un contesto `vm` con stub di `SpreadsheetApp`, `ContentService`, `Utilities`, `CacheService`, `LockService`, `PropertiesService`, che simulano un foglio in memoria con le 4 schede. In `apps-script/codice.test.js`:
   - `doGet({parameter:{azione:'parrocchie'}})` non espone `Sale` né `PasswordHash`
   - `salvaCelebrazione` con password giusta scrive; con password sbagliata non scrive e dà l'errore generico; al 6° tentativo dà "Troppi tentativi"
-  - `accettaProposta` crea `N1` e segna la proposta `accettata`
+  - `accettaProposta` con codice `A27` crea il canto e segna la proposta `accettata`; con codice già esistente → `ok:false`
+  - `salvaRiferimento` con riferimento già usato da un altro canto → `ok:false`; con riferimento vuoto toglie la riga
   - `proponiCanto` senza titolo → `ok:false`
 - [ ] **Step 3:** `npm test` → PASS.
 - [ ] **Step 4:** Commit `Universale: script Apps Script con lettura, scrittura protetta e menu`.
@@ -152,6 +158,7 @@
 - Condivisione: `"<Celebrazione> — <Nome parrocchia>"` e link `/celebrazioni/<slug>?c=<celebrazione>`.
 
 - [ ] **Step 1:** Implementare.
+- [ ] **Step 1b: Raccoglitore della parrocchia.** Con una parrocchia attiva, la riga dell'archivio e la pagina canto mostrano il riferimento **di quella parrocchia** (sostituisce la logica `riferimentoRaccoglitore` del foglio). Il filtro diventa "Solo nel raccoglitore di <parrocchia>". Senza parrocchia scelta, niente informazioni sul raccoglitore.
 - [ ] **Step 2:** Verifica Playwright con lo script intercettato (`page.route` verso `VITE_API_URL` con risposte JSON di prova per due parrocchie, "Santa Chiara" e "San Nicolò"):
   - ricerca "nicolo" trova "San Nicolò" *(Review Focus 4)*
   - scelta → celebrazioni giuste; ricarica offline → stesse celebrazioni dalla cache
@@ -169,10 +176,11 @@
 **Interfaces:**
 - Route `/celebrazioni/:slug/modifica`. Password chiesta una volta, verificata con `verificaParrocchia` e poi ricordata in `localStorage` (`password_<slug>`), con pulsante "Esci" che la cancella.
 - Editor: scelta celebrazione (o "Nuova celebrazione" con nome); righe con momento (campo testo con suggerimenti dei momenti standard: Ingresso, Atto penitenziale, Gloria, Alleluia, Offertorio, Santo, Padre nostro, Pace, Agnello di Dio, Comunione, Finale), canto (`SongPicker`: ricerca con `searchSongs`, mostra ID + titolo), note; pulsanti su/giù, rimuovi, aggiungi riga. Poi "Salva" ed "Elimina celebrazione" (con conferma).
+- Nella pagina canto, se la parrocchia è sbloccata: "Aggiungi al raccoglitore" con il riferimento proposto (`riferimentoProposto` sul prefisso dell'ID) modificabile, oppure "Togli dal raccoglitore". Salva con `salvaRiferimento`.
 - Salvataggio con `chiamaApi('salvaCelebrazione', …)`. Se riesce: messaggio "Salvato", cache della parrocchia aggiornata subito. Se fallisce: messaggio dell'errore, form intatto *(Review Focus 1)*.
 
 - [ ] **Step 1:** Implementare.
-- [ ] **Step 2:** Verifica Playwright con API intercettata: password sbagliata → errore e niente editor; giusta → editor; aggiungi riga con `SongPicker` ("acclamate" → A1), sposta su, salva → corpo POST con righe e ordine attesi; API che risponde 500 → messaggio "niente è stato salvato" e righe ancora presenti; elimina con conferma.
+- [ ] **Step 2:** Verifica Playwright con API intercettata: aggiungi al raccoglitore → POST con il riferimento proposto, riga aggiornata; riferimento già usato → messaggio d'errore. Password sbagliata → errore e niente editor; giusta → editor; aggiungi riga con `SongPicker` ("acclamate" → A1), sposta su, salva → corpo POST con righe e ordine attesi; API che risponde 500 → messaggio "niente è stato salvato" e righe ancora presenti; elimina con conferma.
 - [ ] **Step 3:** Commit `Universale: modifica delle celebrazioni con password di parrocchia`.
 
 ### Task 7: Suggerimenti con conferma vera
@@ -192,11 +200,11 @@
 
 **Interfaces:**
 - `/admin`: login con password admin (verificata da `elencoProposte`). Due sezioni:
-  - **Proposte nuove**: titolo, autore, parrocchia, link, testo; "Accetta" (con tag opzionali) / "Rifiuta"; dopo l'accettazione mostra l'ID assegnato e "Visibile nell'archivio entro un'ora".
+  - **Proposte nuove**: titolo, autore, parrocchia, link, testo; campo **codice** già compilato con `codiceProposto` e modificabile; "Accetta" (con tag opzionali) / "Rifiuta"; dopo l'accettazione mostra il codice e "Visibile nell'archivio entro un'ora". Il canto accettato **non** entra in nessun raccoglitore: ogni parrocchia lo aggiunge al suo quando lo stampa.
   - **Parrocchie**: elenco, "Nuova parrocchia" (nome, città, password), "Reimposta password".
 
 - [ ] **Step 1:** Implementare.
-- [ ] **Step 2:** Verifica Playwright con API intercettata: login sbagliato → errore; giusto → lista; accetta → mostra `N1`; crea parrocchia → appare in elenco; la password non compare mai nell'URL né in `localStorage`.
+- [ ] **Step 2:** Verifica Playwright con API intercettata: login sbagliato → errore; giusto → lista; accetta con codice proposto → mostra il codice; crea parrocchia → appare in elenco; la password non compare mai nell'URL né in `localStorage`.
 - [ ] **Step 3:** `grep -rn "ADMIN_PIN_HASH\|canti_admin_auth" src` → 0.
 - [ ] **Step 4:** Commit `Universale: pannello amministratore`.
 
@@ -225,5 +233,5 @@
 - [ ] **Step 2:** Copiare il foglio con `copy_file` (titolo "Canti Liturgici — database", nel Drive di Andrea). Verificare con `get_file_permissions` che il proprietario della copia sia Andrea.
 - [ ] **Step 3:** Andrea esegue i passi 2-4 del SETUP (azioni sul suo account). Con l'URL reale: `curl "<URL>?azione=parrocchie"` → `santa-chiara` presente; `?azione=catalogo` → 258 canti.
 - [ ] **Step 4:** Creazione del repo e push. **Prima chiedere conferma ad Andrea** del nome del repo (suggerito `canti-liturgici`) e della visibilità. Poi `gh repo create`, `git push`, `gh variable set VITE_API_URL`, abilitazione di Pages, `gh workflow run`.
-- [ ] **Step 5:** Verifica end-to-end sull'indirizzo pubblicato: home 258 canti; `/celebrazioni` → Santa Chiara → Messa 10:30 come oggi; modifica con password → salvataggio → visibile dopo il ricaricamento; proposta → visibile in admin → accettata → `N1` nel foglio.
+- [ ] **Step 5:** Verifica end-to-end sull'indirizzo pubblicato: home 258 canti; `/celebrazioni` → Santa Chiara → Messa 10:30 come oggi; modifica con password → salvataggio → visibile dopo il ricaricamento; proposta → visibile in admin → accettata con il codice proposto nel foglio; il canto nuovo risulta "non nel raccoglitore" per Santa Chiara; aggiunto al raccoglitore con il riferimento proposto → visibile dopo il ricaricamento.
 - [ ] **Step 6:** Commit `Universale: guida di messa in funzione`.

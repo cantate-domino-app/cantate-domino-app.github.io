@@ -184,6 +184,12 @@ L'app ricorda la password della parrocchia sul dispositivo dopo il primo inserim
 - **Nome provvisorio**: "Canti Liturgici". Il nome definitivo si decide dopo e va cambiato in un punto solo.
 - Andrea ha accesso in modifica al foglio di Luca. Lo strumento Drive a disposizione legge e copia i fogli ma non modifica le celle: le modifiche ai dati passano dallo script Apps Script, attivato da Andrea.
 
+### Raccoglitore (richiesta di Luca, 6/11/2026)
+- Gli ID di oggi sono la posizione del foglio nel **raccoglitore cartaceo** di Luca (lettera iniziale + numero). I canti aggiunti da altri non devono creare buchi nella sua numerazione.
+- Regola: **un canto è nel raccoglitore se ha un riferimento**. Senza riferimento non c'è; quando Luca lo stampa e lo mette dentro, gli assegna il riferimento.
+- Nell'app di oggi: colonna "Raccoglitore" nel foglio Canti (se manca, riferimento = ID per tutti).
+- Nella versione universale: un raccoglitore **per parrocchia**, separato dal codice dell'archivio comune. Santa Chiara parte dai riferimenti di oggi, le altre parrocchie partono vuote.
+
 ### Nome, indirizzo, link
 - Nome neutro (da scegliere) e nuovo indirizzo. Il percorso `/canti-liturgici-santa-chiara/` è scritto a mano in `vite.config.js` (base, manifest, icone) e nei link condivisi: va cambiato ovunque in un colpo solo.
 - **Chi ha già installato l'app** con l'indirizzo vecchio deve reinstallarla. Si può lasciare all'indirizzo vecchio una pagina che reindirizza.
