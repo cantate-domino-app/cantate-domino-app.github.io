@@ -6,41 +6,92 @@ import { useFontSize } from '../hooks/useFontSize'
 import { useWakeLock } from '../hooks/useWakeLock'
 import SongLyrics from '../components/SongLyrics'
 import FontSizeControls from '../components/FontSizeControls'
+import Icon from '../components/Icon'
+
+const formatDriveUrl = (url, mode = 'preview') => {
+    if (!url) return ''
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/)
+    if (match && match[1]) {
+        const fileId = match[1]
+        return mode === 'preview'
+            ? `https://drive.google.com/file/d/${fileId}/preview`
+            : `https://drive.google.com/uc?export=download&id=${fileId}`
+    }
+    return url
+}
+
+// Spartito: niente anteprima finché non la si chiede (l'iframe di Drive è pesante)
+function SheetRow({ label, url, title, isAdmin = false }) {
+    const [showPreview, setShowPreview] = useState(false)
+    const preview = formatDriveUrl(url, 'preview')
+
+    return (
+        <div className={`resource-row ${isAdmin ? 'is-admin' : ''}`}>
+            <span className="resource-name">
+                <Icon name={isAdmin ? 'lock' : 'music'} size={20} />
+                {label}
+            </span>
+            <div className="resource-actions">
+                <a href={preview} target="_blank" rel="noopener noreferrer" className="btn">
+                    <Icon name="external" size={18} />
+                    Apri
+                </a>
+                <a href={formatDriveUrl(url, 'download')} target="_blank" rel="noopener noreferrer" className="btn">
+                    <Icon name="download" size={18} />
+                    Scarica
+                </a>
+                <button
+                    type="button"
+                    className="btn"
+                    aria-expanded={showPreview}
+                    onClick={() => setShowPreview((v) => !v)}
+                >
+                    <Icon name={showPreview ? 'chevron-up' : 'chevron-down'} size={18} />
+                    {showPreview ? 'Nascondi anteprima' : 'Anteprima'}
+                </button>
+            </div>
+            {showPreview && (
+                <iframe src={preview} title={`${label}: ${title}`} className="pdf-preview" loading="lazy" />
+            )}
+        </div>
+    )
+}
 
 export default function SongPage() {
     const { id } = useParams()
     const location = useLocation()
     const { songs, loading, error } = useSongs()
-
-    // Determinazione del percorso di provenienza
-    const isFromDaily = location.state?.from === 'daily'
-    const backTo = isFromDaily ? '/daily' : '/'
-    const backLabel = isFromDaily ? '← Torna alla Celebrazione' : "← Torna all'elenco"
-
     const { isAdmin } = useAdmin()
 
-    const [fontSize, setFontSize] = useFontSize()
-    const wakeLock = useWakeLock()
+    // Provenienza: dalla celebrazione si torna alla stessa celebrazione
+    const fromDaily = location.state?.from === 'daily' ? location.state : null
+    const backTo = fromDaily?.celebration
+        ? `/daily?celebrazione=${encodeURIComponent(fromDaily.celebration)}`
+        : fromDaily ? '/daily' : '/'
+    const backLabel = fromDaily ? fromDaily.celebration || 'Celebrazione' : 'Archivio'
 
-    // Feedback copia link
+    const [fontSize, setFontSize] = useFontSize()
+    const [showTextSize, setShowTextSize] = useState(false)
+    const wakeLock = useWakeLock()
     const [copied, setCopied] = useState(false)
 
-    const copyShareLink = () => {
-        navigator.clipboard.writeText(window.location.href)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-    }
-
-    const formatDriveUrl = (url, mode = 'preview') => {
-        if (!url) return ''
-        const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/)
-        if (match && match[1]) {
-            const fileId = match[1]
-            return mode === 'preview'
-                ? `https://drive.google.com/file/d/${fileId}/preview`
-                : `https://drive.google.com/uc?export=download&id=${fileId}`
+    const shareSong = async (title) => {
+        const url = window.location.href
+        if (navigator.share) {
+            try {
+                await navigator.share({ title, url })
+                return
+            } catch (err) {
+                if (err.name === 'AbortError') return
+            }
         }
-        return url
+        try {
+            await navigator.clipboard.writeText(url)
+            setCopied(true)
+            setTimeout(() => setCopied(false), 2000)
+        } catch (err) {
+            console.error('Errore copia link:', err)
+        }
     }
 
     if (loading) return <p className="status-message">Caricamento canto...</p>
@@ -51,185 +102,120 @@ export default function SongPage() {
     if (!song) {
         return (
             <section className="song-detail-container">
-                <Link to={backTo} className="back-link">{backLabel}</Link>
-                <p className="status-message">Canto non trovato nel catalogo.</p>
+                <div className="song-bar">
+                    <Link to={backTo} className="back-link">
+                        <Icon name="chevron-left" />
+                        <span>{backLabel}</span>
+                    </Link>
+                </div>
+                <p className="status-message">Canto non trovato nell'archivio.</p>
             </section>
         )
     }
 
-    const origPreview = formatDriveUrl(song.sheetOriginal, 'preview')
-    const origDownload = formatDriveUrl(song.sheetOriginal, 'download')
-
-    const modPreview = formatDriveUrl(song.sheetModified, 'preview')
-    const modDownload = formatDriveUrl(song.sheetModified, 'download')
+    const rubric = fromDaily?.moment
+        ? `${fromDaily.moment} · ${song.id}`
+        : [...song.tags.slice(0, 2), song.id].join(' · ')
+    const hasSheets = song.sheetOriginal || (isAdmin && song.sheetModified)
 
     return (
         <article className="song-detail-container">
-            <header className="song-header">
-                <Link to={backTo} className="back-link">{backLabel}</Link>
-                <div className="song-title-group">
-                    {song.id && <span className="song-badge-id">{song.id}</span>}
-                    <h1>{song.title}</h1>
-                    {song.author && <p className="song-subtitle">{song.author}</p>}
-                </div>
-
-                {song.tags.length > 0 && (
-                    <div className="card-tags">
-                        {song.tags.map((t, idx) => (
-                            <span key={idx} className="tag-pill">{t}</span>
-                        ))}
-                    </div>
-                )}
-
-                {/* Toolbar */}
-                <div className="song-toolbar">
-                    <FontSizeControls fontSize={fontSize} setFontSize={setFontSize} />
-
+            <div className="song-bar">
+                <Link to={backTo} className="back-link">
+                    <Icon name="chevron-left" />
+                    <span>{backLabel}</span>
+                </Link>
+                <div className="song-bar-actions">
+                    <button
+                        type="button"
+                        className="icon-btn"
+                        aria-pressed={showTextSize}
+                        aria-label="Dimensione del testo"
+                        title="Dimensione del testo"
+                        onClick={() => setShowTextSize((v) => !v)}
+                    >
+                        <Icon name="text-size" />
+                    </button>
                     {wakeLock.supported && (
                         <button
                             type="button"
-                            className={`tool-button ${wakeLock.active ? 'active' : ''}`}
-                            onClick={wakeLock.toggle}
+                            className="icon-btn"
                             aria-pressed={wakeLock.active}
-                            title="Mantieni lo schermo acceso durante la celebrazione"
+                            aria-label="Schermo sempre acceso"
+                            title={wakeLock.active ? 'Schermo sempre acceso: attivo' : 'Schermo sempre acceso: spento'}
+                            onClick={wakeLock.toggle}
                         >
-                            {wakeLock.active ? '☀️ Schermo Sempre Attivo (ON)' : '🌙 Schermo Normale'}
+                            <Icon name="screen-on" />
                         </button>
                     )}
-
                     <button
                         type="button"
-                        className="tool-button"
-                        onClick={copyShareLink}
+                        className="icon-btn"
+                        aria-label={copied ? 'Link copiato' : 'Condividi il canto'}
+                        title="Condividi il canto"
+                        onClick={() => shareSong(song.title)}
                     >
-                        {copied ? '✓ Link Copiato!' : '🔗 Copia Link'}
+                        <Icon name={copied ? 'check' : 'share'} />
                     </button>
+                </div>
+            </div>
+            {showTextSize && <FontSizeControls fontSize={fontSize} setFontSize={setFontSize} />}
+
+            <header className="song-header">
+                <div className="song-title-group">
+                    <div className="rubric">{rubric}</div>
+                    <h1>{song.title}</h1>
+                    {song.author && <p className="song-subtitle">{song.author}</p>}
                 </div>
             </header>
 
-            {/* SEZIONE TESTO */}
-            <section className="song-section">
-                <h2 className="section-title">Testo</h2>
-                <SongLyrics rawLyrics={song.lyrics} fontSize={fontSize} />
-            </section>
+            <div className="song-body">
+                {song.lyrics ? (
+                    <SongLyrics rawLyrics={song.lyrics} fontSize={fontSize} />
+                ) : (
+                    <p className="no-lyrics">
+                        Il testo di questo canto non è ancora stato inserito.
+                        {(song.youtube || hasSheets) && ' Puoi ascoltarlo o aprire lo spartito qui sotto.'}
+                    </p>
+                )}
 
-            {/* SEZIONE SPARTITO ORIGINALE */}
-            {song.sheetOriginal && (
-                <section className="song-section">
-                    <div className="section-header-flex">
-                        <h2 className="section-title">Spartito Originale</h2>
-                        <div className="sheet-actions">
-                            <a
-                                href={origPreview}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="action-btn-primary"
-                            >
-                                ⛶ Schermo Intero
-                            </a>
-                            <a
-                                href={origDownload}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="action-btn-secondary"
-                            >
-                                ⬇ Scarica PDF
-                            </a>
-                        </div>
-                    </div>
-
-                    <a
-                        href={origPreview}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="pdf-preview-link"
-                        title="Clicca per aprire lo spartito a schermo intero"
-                    >
-                        <iframe
-                            src={origPreview}
-                            title={`Spartito Originale ${song.title}`}
-                            className="pdf-frame static-frame"
-                            tabIndex="-1"
-                            loading="lazy"
-                        />
-                        <div className="pdf-click-overlay">
-                            <span className="overlay-badge">🔍 Tocca per ingrandire</span>
-                        </div>
-                    </a>
-                </section>
-            )}
-
-            {/* SEZIONE SPARTITO MODIFICATO (RISERVATA ADMIN) */}
-            {isAdmin && song.sheetModified && (
-                <section className="song-section admin-section">
-                    <div className="section-header-flex">
-                        <h2 className="section-title admin-title">
-                            🔒 Spartito Modificato (Note personali)
-                        </h2>
-                        <div className="sheet-actions">
-                            <a
-                                href={modPreview}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="action-btn-primary"
-                            >
-                                ⛶ Apri a Schermo Intero
-                            </a>
-                            <a
-                                href={modDownload}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="action-btn-secondary"
-                            >
-                                ⬇ Scarica Modificato
-                            </a>
-                        </div>
-                    </div>
-
-                    <a
-                        href={modPreview}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="pdf-preview-link"
-                        title="Clicca per aprire lo spartito a schermo intero"
-                    >
-                        <iframe
-                            src={modPreview}
-                            title={`Spartito Modificato ${song.title}`}
-                            className="pdf-frame static-frame"
-                            tabIndex="-1"
-                            loading="lazy"
-                        />
-                        <div className="pdf-click-overlay">
-                            <span className="overlay-badge">🔍 Tocca per ingrandire</span>
-                        </div>
-                    </a>
-                </section>
-            )}
-
-            {/* FOOTER: RISORSE E NOTE */}
-            <footer className="song-footer-resources">
-                {song.youtube && (
-                    <div className="youtube-box">
-                        <span>Ascolta il canto:</span>
-                        <a
-                            href={song.youtube}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="youtube-badge"
-                        >
-                            ▶ Guarda su YouTube
-                        </a>
-                    </div>
+                {(hasSheets || song.youtube) && (
+                    <section className="song-section" aria-labelledby="risorse-titolo">
+                        <h2 id="risorse-titolo" className="rubric section-title">Spartiti e ascolto</h2>
+                        {song.youtube && (
+                            <div className="resource-row">
+                                <span className="resource-name">
+                                    <Icon name="play" size={20} />
+                                    YouTube
+                                </span>
+                                <div className="resource-actions">
+                                    <a
+                                        href={song.youtube}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={song.lyrics ? 'btn' : 'btn btn-primary'}
+                                    >
+                                        Ascolta
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+                        {song.sheetOriginal && (
+                            <SheetRow label="Spartito originale" url={song.sheetOriginal} title={song.title} />
+                        )}
+                        {isAdmin && song.sheetModified && (
+                            <SheetRow label="Spartito modificato" url={song.sheetModified} title={song.title} isAdmin />
+                        )}
+                    </section>
                 )}
 
                 {song.notes && (
                     <div className="notes-box">
-                        <strong>Note sull'archivio:</strong>
+                        <strong>Note</strong>
                         <p>{song.notes}</p>
                     </div>
                 )}
-            </footer>
+            </div>
         </article>
     )
 }

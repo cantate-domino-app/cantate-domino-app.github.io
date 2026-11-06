@@ -1,25 +1,30 @@
+import Icon from './Icon'
+import { FONT_MIN, FONT_MAX } from '../hooks/useFontSize'
+
+// Pannello che si apre sotto la barra del canto
 export default function FontSizeControls({ fontSize, setFontSize }) {
     const changeFontSize = (delta) => setFontSize((prev) => prev + delta)
 
     return (
-        <div className="font-controls">
-            <span className="toolbar-label">Testo:</span>
+        <div className="text-size-panel" role="group" aria-label="Dimensione del testo">
             <button
                 type="button"
+                className="btn"
                 onClick={() => changeFontSize(-2)}
-                title="Rimpicciolisci font"
-                aria-label="Rimpicciolisci carattere"
+                disabled={fontSize <= FONT_MIN}
+                aria-label="Testo più piccolo"
             >
-                A-
+                <Icon name="minus" />
             </button>
-            <span className="font-size-indicator">{fontSize}px</span>
+            <span className="font-size-indicator" aria-live="polite">{fontSize} px</span>
             <button
                 type="button"
+                className="btn"
                 onClick={() => changeFontSize(2)}
-                title="Ingrandisci font"
-                aria-label="Ingrandisci carattere"
+                disabled={fontSize >= FONT_MAX}
+                aria-label="Testo più grande"
             >
-                A+
+                <Icon name="plus" />
             </button>
         </div>
     )

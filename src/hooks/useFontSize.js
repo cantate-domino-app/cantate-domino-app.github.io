@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 const STORAGE_KEY = 'hymn_font_size'
 export const FONT_MIN = 16
 export const FONT_MAX = 36
-const FONT_DEFAULT = 18
+const FONT_DEFAULT = 22
 
 const clamp = (n) => Math.min(Math.max(n, FONT_MIN), FONT_MAX)
 

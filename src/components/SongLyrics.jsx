@@ -48,29 +48,39 @@ export default function SongLyrics({ rawLyrics, fontSize }) {
         }
     })
 
+    let verseNumber = 0
+
     return (
         <div className="lyrics-wrapper" style={{ fontSize: `${fontSize}px` }}>
             {parsedBlocks.map((block, idx) => {
                 if (block.type === 'marker') {
                     return (
                         <div key={idx} className="lyrics-stanza chorus-marker">
-                            <span>— Rit. —</span>
+                            <span className="lyrics-stanza-mark" aria-hidden="true">℟.</span>
+                            <span>Ritornello</span>
                         </div>
                     )
                 }
 
                 const isChorus = block.type === 'chorus'
+                if (!isChorus) verseNumber += 1
 
                 return (
                     <div
                         key={idx}
                         className={`lyrics-stanza ${isChorus ? 'chorus' : ''}`}
                     >
-                        {block.lines.map((line, lineIdx) => (
-                            <p key={lineIdx} className="lyrics-line">
-                                {line}
-                            </p>
-                        ))}
+                        <span className="lyrics-stanza-mark" aria-hidden="true">
+                            {isChorus ? '℟.' : verseNumber}
+                        </span>
+                        <div>
+                            {isChorus && <span className="visually-hidden">Ritornello: </span>}
+                            {block.lines.map((line, lineIdx) => (
+                                <p key={lineIdx} className="lyrics-line">
+                                    {line}
+                                </p>
+                            ))}
+                        </div>
                     </div>
                 )
             })}
