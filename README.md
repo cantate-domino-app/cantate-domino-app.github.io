@@ -1,16 +1,23 @@
-# React + Vite
+# Canti Liturgici
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Archivio di canti liturgici per cori e musicisti: testi, spartiti, link YouTube e i canti delle celebrazioni di ogni parrocchia. È una PWA che si installa sul telefono e funziona anche offline. È gratuita e non è in vendita.
 
-Currently, two official plugins are available:
+## Come è fatta
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Database**: un foglio Google. Uno script Apps Script ([`apps-script/`](apps-script/)) lo legge e lo scrive. Le password sono verificate dallo script, mai nel browser.
+- **Catalogo canti**: una GitHub Action lo scarica ogni ora in `public/canti.json` ([`scripts/scarica-catalogo.mjs`](scripts/scarica-catalogo.mjs)). Così l'app si apre subito.
+- **App**: React + Vite, pubblicata su GitHub Pages.
 
-## React Compiler
+La messa in funzione passo per passo è in [`docs/universale/SETUP.md`](docs/universale/SETUP.md).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Comandi
 
-## Expanding the ESLint configuration
+```bash
+npm run dev       # server di sviluppo
+npm test          # test (logica dello script e librerie)
+npm run lint
+npm run build     # serve VITE_API_URL e, se diverso, BASE_PATH (default /canti-liturgici/)
+node scripts/report-dati.mjs > docs/universale/report-dati.md   # report qualità dati
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+In sviluppo `public/canti.json` si genera con `VITE_API_URL=<url dello script> node scripts/scarica-catalogo.mjs`.
