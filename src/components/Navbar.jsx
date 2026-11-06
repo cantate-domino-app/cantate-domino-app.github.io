@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAdmin } from '../context/AdminContext'
 import { useTheme } from '../context/ThemeContext'
@@ -11,11 +11,8 @@ export default function Navbar() {
     const [isIos, setIsIos] = useState(false)
     const [showIosGuide, setShowIosGuide] = useState(false)
     const location = useLocation()
-    const { isAdmin, setShowLoginModal, logout } = useAdmin()
+    const { isAdmin, logout } = useAdmin()
     const { theme, toggleTheme } = useTheme()
-
-    const tapCountRef = useRef(0)
-    const tapTimerRef = useRef(null)
 
     // Gestione installazione PWA (Chrome, Edge, Android + rilevamento iOS)
     useEffect(() => {
@@ -48,24 +45,6 @@ export default function Navbar() {
         }
     }
 
-    const handleSecretTap = () => {
-        tapCountRef.current += 1
-
-        if (tapTimerRef.current) {
-            clearTimeout(tapTimerRef.current)
-        }
-
-        if (tapCountRef.current >= 5) {
-            tapCountRef.current = 0
-            setShowLoginModal(true)
-            return
-        }
-
-        tapTimerRef.current = setTimeout(() => {
-            tapCountRef.current = 0
-        }, 2500)
-    }
-
     const closeMenu = () => setMenuOpen(false)
 
     return (
@@ -91,12 +70,8 @@ export default function Navbar() {
                             </h1>
                             {isAdmin && <span className="admin-active-badge">Admin</span>}
                         </div>
-                        <span
-                            className="secret-trigger"
-                            onClick={handleSecretTap}
-                            title=""
-                        >
-                            Parrocchia Santa Chiara
+                        <span className="navbar-subtitle">
+                            Archivio canti per cori e musicisti
                         </span>
                     </div>
                 </div>
@@ -169,6 +144,15 @@ export default function Navbar() {
                     >
                         Suggerisci Canto
                     </Link>
+                    {isAdmin && (
+                        <Link
+                            to="/admin"
+                            className={`sidebar-link ${location.pathname === '/admin' ? 'active' : ''}`}
+                            onClick={closeMenu}
+                        >
+                            Area admin
+                        </Link>
+                    )}
                 </nav>
 
                 {installPrompt ? (
@@ -211,7 +195,7 @@ export default function Navbar() {
 
                 {isAdmin && (
                     <div className="sidebar-admin-footer">
-                        <span className="admin-status-text">Modalità Luca attiva</span>
+                        <span className="admin-status-text">Modalità admin attiva</span>
                         <button
                             type="button"
                             className="btn admin-logout-btn"

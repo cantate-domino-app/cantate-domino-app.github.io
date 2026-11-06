@@ -9,6 +9,7 @@ import HomePage from './pages/HomePage'
 import SongPage from './pages/SongPage'
 import DailySongsPage from './pages/DailySongsPage'
 import SuggestPage from './pages/SuggestPage'
+import AdminPage from './pages/AdminPage'
 import './App.css'
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
                   <Route path="/song/:id" element={<SongPage />} />
                   <Route path="/daily" element={<DailySongsPage />} />
                   <Route path="/suggest" element={<SuggestPage />} />
+                  <Route path="/admin" element={<AdminPage />} />
                 </Routes>
               </main>
               <AdminModal />

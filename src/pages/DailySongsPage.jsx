@@ -186,13 +186,13 @@ export default function DailySongsPage() {
 
         const base = window.location.origin + window.location.pathname
         const shareUrl = `${base}#/daily?celebrazione=${encodeURIComponent(activeCelebration)}`
-        const shareText = `🎶 *${titleText} — Parrocchia Santa Chiara*\nEcco i canti scelti con testi e spartiti:\n${shareUrl}`
+        const shareText = `🎶 *${titleText}*\nEcco i canti scelti con testi e spartiti:\n${shareUrl}`
 
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: `${titleText} — Parrocchia Santa Chiara`,
-                    text: `🎶 ${titleText} — Parrocchia Santa Chiara\nEcco i canti scelti con testi e spartiti:`,
+                    title: titleText,
+                    text: `🎶 ${titleText}\nEcco i canti scelti con testi e spartiti:`,
                     url: shareUrl,
                 })
                 return

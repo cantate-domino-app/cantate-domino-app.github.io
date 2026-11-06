@@ -1,6 +1,10 @@
+/* global process */
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { APP_NAME, APP_SHORT_NAME, APP_DESCRIPTION } from './src/config.js'
+
+const base = process.env.BASE_PATH || '/canti-liturgici/'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -17,42 +21,42 @@ export default defineConfig({
         'web-app-manifest-512x512.png',
       ],
       manifest: {
-        name: 'Canti Liturgici — Parrocchia Santa Chiara',
-        short_name: 'Canti SC',
-        description: 'Archivio canti liturgici con testi, spartiti e canti per le celebrazioni della Parrocchia Santa Chiara.',
+        name: APP_NAME,
+        short_name: APP_SHORT_NAME,
+        description: APP_DESCRIPTION,
         lang: 'it',
         theme_color: '#f5f0e6',
         background_color: '#f5f0e6',
         display: 'standalone',
         orientation: 'portrait-primary',
-        scope: '/canti-liturgici-santa-chiara/',
-        start_url: '/canti-liturgici-santa-chiara/',
+        scope: base,
+        start_url: base,
         icons: [
           {
-            src: '/canti-liturgici-santa-chiara/favicon-96x96.png',
+            src: `${base}favicon-96x96.png`,
             sizes: '96x96',
             type: 'image/png',
           },
           {
-            src: '/canti-liturgici-santa-chiara/web-app-manifest-192x192.png',
+            src: `${base}web-app-manifest-192x192.png`,
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any',
           },
           {
-            src: '/canti-liturgici-santa-chiara/web-app-manifest-192x192.png',
+            src: `${base}web-app-manifest-192x192.png`,
             sizes: '192x192',
             type: 'image/png',
             purpose: 'maskable',
           },
           {
-            src: '/canti-liturgici-santa-chiara/web-app-manifest-512x512.png',
+            src: `${base}web-app-manifest-512x512.png`,
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any',
           },
           {
-            src: '/canti-liturgici-santa-chiara/web-app-manifest-512x512.png',
+            src: `${base}web-app-manifest-512x512.png`,
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
@@ -97,5 +101,5 @@ export default defineConfig({
       },
     }),
   ],
-  base: '/canti-liturgici-santa-chiara/',
+  base,
 })
