@@ -595,6 +595,18 @@ h3 {
   transition: background-color 0.15s;
 }
 
+/* Riga parrocchia: stessa riga dell'archivio, ma è un pulsante e non ha il codice */
+.parish-row {
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  padding-right: 1rem;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
 .song-row-main:hover {
   background: var(--rubric-soft);
 }

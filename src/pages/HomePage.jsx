@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useSongs } from '../context/SongsContext'
+import { useRaccoglitore } from '../context/ParrocchiaContext'
 import { searchSongs } from '../lib/search'
 import { isTempo } from '../lib/tags'
 import SongCard from '../components/SongCard'
@@ -35,7 +36,7 @@ export default function HomePage() {
     const [selectedMomento, setSelectedMomento] = useState(TUTTI)
     const [selectedTempo, setSelectedTempo] = useState(TUTTI)
     const [soloRaccoglitore, setSoloRaccoglitore] = useState(false)
-    const qualcunoFuori = useMemo(() => songs.some((s) => !s.binder), [songs])
+    const raccoglitore = useRaccoglitore()
 
     // Tag distinti divisi tra momenti della messa e tempi liturgici, in ordine alfabetico
     const { momenti, tempi } = useMemo(() => {
@@ -50,9 +51,9 @@ export default function HomePage() {
         return searchSongs(searchIndex, search).filter((song) =>
             (selectedMomento === TUTTI || song.tags.includes(selectedMomento)) &&
             (selectedTempo === TUTTI || song.tags.includes(selectedTempo)) &&
-            (!soloRaccoglitore || song.binder)
+            (!soloRaccoglitore || !raccoglitore.attivo || raccoglitore.riferimento(song.id))
         )
-    }, [searchIndex, search, selectedMomento, selectedTempo, soloRaccoglitore])
+    }, [searchIndex, search, selectedMomento, selectedTempo, soloRaccoglitore, raccoglitore])
 
     const activeFilters = [selectedMomento, selectedTempo].filter((t) => t !== TUTTI)
 
@@ -95,14 +96,14 @@ export default function HomePage() {
                 <span>
                     {filteredSongs.length} {filteredSongs.length === 1 ? 'canto trovato' : 'canti trovati'}
                 </span>
-                {qualcunoFuori && (
+                {raccoglitore.attivo && (
                     <button
                         type="button"
                         className={`tag-chip ${soloRaccoglitore ? 'active' : ''}`}
                         aria-pressed={soloRaccoglitore}
                         onClick={() => setSoloRaccoglitore((v) => !v)}
                     >
-                        Solo nel raccoglitore
+                        Solo nel raccoglitore di {raccoglitore.nome}
                     </button>
                 )}
                 {activeFilters.length > 0 && (

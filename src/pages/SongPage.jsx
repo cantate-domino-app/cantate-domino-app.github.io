@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useLocation } from 'react-router-dom'
 import { useSongs } from '../context/SongsContext'
 import { useAdmin } from '../context/AdminContext'
+import { useRaccoglitore } from '../context/ParrocchiaContext'
 import { useFontSize } from '../hooks/useFontSize'
 import { useWakeLock } from '../hooks/useWakeLock'
 import SongLyrics from '../components/SongLyrics'
@@ -62,12 +63,13 @@ export default function SongPage() {
     const location = useLocation()
     const { songs, loading, error } = useSongs()
     const { isAdmin } = useAdmin()
+    const raccoglitore = useRaccoglitore()
 
     // Provenienza: dalla celebrazione si torna alla stessa celebrazione
     const fromDaily = location.state?.from === 'daily' ? location.state : null
-    const backTo = fromDaily?.celebration
-        ? `/daily?celebrazione=${encodeURIComponent(fromDaily.celebration)}`
-        : fromDaily ? '/daily' : '/'
+    const backTo = fromDaily
+        ? `/celebrazioni/${fromDaily.parrocchia}${fromDaily.celebration ? `?c=${encodeURIComponent(fromDaily.celebration)}` : ''}`
+        : '/'
     const backLabel = fromDaily ? fromDaily.celebration || 'Celebrazione' : 'Archivio'
 
     const [fontSize, setFontSize] = useFontSize()
@@ -118,6 +120,7 @@ export default function SongPage() {
         )
     }
 
+    const riferimento = raccoglitore.riferimento(song.id)
     const rubric = fromDaily?.moment
         ? `${fromDaily.moment} · ${song.id}`
         : [...song.tags.slice(0, 2), song.id].join(' · ')
@@ -182,9 +185,11 @@ export default function SongPage() {
                     <div className="rubric">{rubric}</div>
                     <h1>{song.title}</h1>
                     {song.author && <p className="song-subtitle">{song.author}</p>}
-                    <p className={`song-binder ${song.binder ? '' : 'is-missing'}`}>
-                        {song.binder ? `Nel raccoglitore: ${song.binder}` : 'Non nel raccoglitore'}
-                    </p>
+                    {raccoglitore.attivo && (
+                        <p className={`song-binder ${riferimento ? '' : 'is-missing'}`}>
+                            {riferimento ? `Nel raccoglitore: ${riferimento}` : 'Non nel raccoglitore'}
+                        </p>
+                    )}
                 </div>
             </header>
 

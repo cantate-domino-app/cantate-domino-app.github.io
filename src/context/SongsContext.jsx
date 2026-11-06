@@ -1,7 +1,6 @@
 import { createContext, useContext, useMemo } from 'react'
 import { useCachedCsv } from '../hooks/useCachedCsv'
 import { buildSearchIndex } from '../lib/search'
-import { trovaColonnaRaccoglitore, riferimentoRaccoglitore } from '../lib/raccoglitore'
 import { BASE } from '../config'
 
 // Catalogo statico generato dalla GitHub Action (scripts/scarica-catalogo.mjs)
@@ -10,7 +9,6 @@ const CACHE_KEY = 'cached_songs_catalog_json'
 
 function parseCatalogo(testo) {
     const canti = JSON.parse(testo).canti || []
-    const colonnaRaccoglitore = trovaColonnaRaccoglitore(Object.keys(canti[0] || {}))
     return canti
         .filter((item) => item.Titolo && item.Titolo.trim() !== '')
         .map((item) => ({
@@ -23,7 +21,6 @@ function parseCatalogo(testo) {
             sheetModified: (item['Spartito Modificato'] || '').trim(),
             lyrics: (item.Testo || '').trim(),
             notes: (item.Note || '').trim(),
-            binder: riferimentoRaccoglitore(item, colonnaRaccoglitore)
         }))
 }
 

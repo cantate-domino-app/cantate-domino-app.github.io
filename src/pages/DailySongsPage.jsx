@@ -1,8 +1,7 @@
-import { useState, useMemo } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import Papa from 'papaparse'
+import { useState, useMemo, useEffect } from 'react'
+import { Link, useSearchParams, useParams } from 'react-router-dom'
 import { useSongs } from '../context/SongsContext'
-import { useCachedCsv } from '../hooks/useCachedCsv'
+import { useParrocchia } from '../context/ParrocchiaContext'
 import { useFontSize } from '../hooks/useFontSize'
 import { useWakeLock } from '../hooks/useWakeLock'
 import SongLyrics from '../components/SongLyrics'
@@ -11,115 +10,38 @@ import Icon from '../components/Icon'
 
 const NO_ROWS = []
 
-const CELEBRAZIONI_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTOuSn2F5KZV-TYnF3yS92H_nEFYCPX_v-VmLtR4nqNXkh6tls7E94FP0ciMGomsPh5H-YBc4lBGFLH/pub?gid=1649967796&single=true&output=csv'
-const CELEBRAZIONI_CACHE_KEY = 'cached_celebrations_schedule_csv'
-
-function parseCelebrationCsv(csvText) {
-    const results = Papa.parse(csvText, {
-        header: true,
-        skipEmptyLines: true,
+// Righe dal server → celebrazioni nell'ordine in cui compaiono, canti per "ordine"
+function raggruppa(righe) {
+    const celebrazioni = []
+    righe.forEach((r) => {
+        if (!celebrazioni.includes(r.celebrazione)) celebrazioni.push(r.celebrazione)
     })
-
-    if (!results.data || results.data.length === 0) {
-        return { parsedRows: [], uniqueCelebs: [] }
-    }
-
-    const firstRow = results.data[0] || {}
-    const keys = Object.keys(firstRow)
-
-    const celebCol = keys.find((k) => /^(celebrazione|evento|gruppo)/i.test(k.trim()))
-    const momentCol = keys.find((k) => /^momento/i.test(k.trim())) || 'Momento'
-    const songCol = keys.find((k) => /^(canto_id|canto|id)/i.test(k.trim())) || 'Canto_ID'
-    const noteCol = keys.find((k) => /^note/i.test(k.trim())) || 'Note'
-
-    const parsedRows = []
-    let runningCelebration = 'Generale'
-
-    // 1. Formato Verticale principale (colonna Celebrazione presente)
-    if (celebCol) {
-        results.data.forEach((item, index) => {
-            const rawCeleb = (item[celebCol] || '').trim()
-            if (rawCeleb) {
-                runningCelebration = rawCeleb
-            }
-
-            const songId = (item[songCol] || '').trim()
-            const moment = (item[momentCol] || '').trim()
-            const notes = (item[noteCol] || '').trim()
-
-            if (songId) {
-                parsedRows.push({
-                    keyId: `${runningCelebration}-${moment || 'momento'}-${index}`,
-                    celebration: runningCelebration,
-                    moment: moment || 'Momento',
-                    songId,
-                    notes
-                })
-            }
-        })
-    } else {
-        // 2. Fallback per colonne orizzontali precedenti (Messa 10:30, Messa 12:15, Adorazione...)
-        const celebrationColumns = keys.filter((k) =>
-            /^(messa|adorazione|veglia)/i.test(k.trim())
-        )
-
-        if (celebrationColumns.length > 0) {
-            celebrationColumns.forEach((colName) => {
-                const trimmedCol = colName.trim()
-                results.data.forEach((item, index) => {
-                    const songId = (item[colName] || '').trim()
-                    const moment = (item[momentCol] || '').trim()
-                    const notes = (item[noteCol] || '').trim()
-
-                    if (songId) {
-                        parsedRows.push({
-                            keyId: `${trimmedCol}-${moment || 'momento'}-${index}`,
-                            celebration: trimmedCol,
-                            moment: moment || 'Momento',
-                            songId,
-                            notes
-                        })
-                    }
-                })
-            })
-        } else {
-            // 3. Fallback standard
-            results.data.forEach((item, index) => {
-                const songId = (item[songCol] || '').trim()
-                if (songId) {
-                    parsedRows.push({
-                        keyId: `generale-${item[momentCol] || 'momento'}-${index}`,
-                        celebration: 'Celebrazione',
-                        moment: (item[momentCol] || '').trim() || 'Momento',
-                        songId,
-                        notes: (item[noteCol] || '').trim()
-                    })
-                }
-            })
-        }
-    }
-
-    const uniqueCelebs = []
-    parsedRows.forEach((r) => {
-        if (!uniqueCelebs.includes(r.celebration)) {
-            uniqueCelebs.push(r.celebration)
-        }
-    })
-
-    return { parsedRows, uniqueCelebs }
+    const parsedRows = [...righe]
+        .sort((a, b) => celebrazioni.indexOf(a.celebrazione) - celebrazioni.indexOf(b.celebrazione) || a.ordine - b.ordine)
+        .map((r) => ({
+            keyId: `${r.celebrazione}-${r.ordine}`,
+            celebration: r.celebrazione,
+            moment: r.momento || 'Momento',
+            songId: r.cantoId,
+            notes: r.note || '',
+        }))
+    return { parsedRows, uniqueCelebs: celebrazioni }
 }
 
-const isScheduleEmpty = (schedule) => schedule.parsedRows.length === 0
-
 export default function DailySongsPage() {
+    const { slug: slugUrl } = useParams()
     const { songs, loading: songsLoading } = useSongs()
     const [searchParams, setSearchParams] = useSearchParams()
-    const {
-        data: schedule,
-        loading: loadingSchedule,
-        error: scheduleError,
-    } = useCachedCsv(CELEBRAZIONI_CSV_URL, CELEBRAZIONI_CACHE_KEY, parseCelebrationCsv, isScheduleEmpty)
-    const errorSchedule = scheduleError ? 'Impossibile caricare i canti della celebrazione.' : null
+    const { slug, scegli, dati, loading: loadingSchedule, error: scheduleError } = useParrocchia()
+
+    // Il link condiviso decide la parrocchia
+    useEffect(() => {
+        if (slugUrl && slugUrl !== slug) scegli(slugUrl)
+    }, [slugUrl, slug, scegli])
+
+    const schedule = useMemo(() => (dati ? raggruppa(dati.righe) : null), [dati])
+    const nomeParrocchia = dati?.parrocchia?.nome || ''
+    const errorSchedule = scheduleError
     const [copied, setCopied] = useState(false)
 
     const [fontSize, setFontSize] = useFontSize()
@@ -134,7 +56,7 @@ export default function DailySongsPage() {
     const celebrations = schedule?.uniqueCelebs ?? NO_ROWS
 
     // Celebrazione attiva: parametro URL (anche legacy ?messa=), poi ultima scelta, poi la prima
-    const urlParam = searchParams.get('celebrazione') || searchParams.get('messa')
+    const urlParam = searchParams.get('c') || searchParams.get('celebrazione') || searchParams.get('messa')
     const activeCelebration = useMemo(() => {
         const fromUrl = urlParam && celebrations.find((c) => c.toLowerCase() === urlParam.toLowerCase())
         if (fromUrl) return fromUrl
@@ -152,7 +74,7 @@ export default function DailySongsPage() {
 
     const handleSelectCelebration = (celeb) => {
         localStorage.setItem('active_celebration', celeb)
-        setSearchParams({ celebrazione: celeb }, { replace: true })
+        setSearchParams({ c: celeb }, { replace: true })
     }
 
     // Filtra per celebrazione attiva
@@ -180,12 +102,10 @@ export default function DailySongsPage() {
     )
 
     const handleShareSchedule = async () => {
-        const titleText = activeCelebration
-            ? `Canti: ${activeCelebration}`
-            : 'Canti per la Celebrazione'
+        const titleText = [activeCelebration || 'Canti per la celebrazione', nomeParrocchia].filter(Boolean).join(' — ')
 
         const base = window.location.origin + window.location.pathname
-        const shareUrl = `${base}#/daily?celebrazione=${encodeURIComponent(activeCelebration)}`
+        const shareUrl = `${base}#/celebrazioni/${slug}?c=${encodeURIComponent(activeCelebration)}`
         const shareText = `🎶 *${titleText}*\nEcco i canti scelti con testi e spartiti:\n${shareUrl}`
 
         if (navigator.share) {
@@ -210,21 +130,26 @@ export default function DailySongsPage() {
         }
     }
 
-    if (songsLoading || loadingSchedule) {
+    if (slugUrl !== slug || songsLoading || loadingSchedule) {
         return <p className="status-message">Caricamento dei canti per la celebrazione...</p>
     }
 
     if (errorSchedule) {
-        return <p className="status-message error">{errorSchedule}</p>
+        return (
+            <p className="status-message error">
+                {errorSchedule} <Link to="/celebrazioni">Scegli la parrocchia</Link>
+            </p>
+        )
     }
 
     return (
         <section className="daily-page-container">
             <header className="daily-header">
-                <h2>Celebrazioni</h2>
-                {celebrations.length <= 1 && activeCelebration && (
-                    <p className="daily-subtitle">{activeCelebration}</p>
-                )}
+                <h2>{nomeParrocchia || 'Celebrazioni'}</h2>
+                <p className="daily-subtitle">
+                    {celebrations.length <= 1 && activeCelebration ? `${activeCelebration} · ` : ''}
+                    <Link to="/celebrazioni">Cambia parrocchia</Link>
+                </p>
             </header>
 
             {celebrations.length > 1 && (
@@ -286,7 +211,7 @@ export default function DailySongsPage() {
 
             {matchedSchedule.length === 0 ? (
                 <div className="empty-schedule">
-                    <p>Nessun canto programmato al momento per questa celebrazione.</p>
+                    <p>Nessun canto programmato al momento per questa parrocchia.</p>
                 </div>
             ) : (
                 <div className="schedule-list">
@@ -343,6 +268,7 @@ export default function DailySongsPage() {
                                                 to={`/song/${item.song.id}`}
                                                 state={{
                                                     from: 'daily',
+                                                    parrocchia: slug,
                                                     celebration: activeCelebration,
                                                     moment: item.moment,
                                                     queue,

@@ -12,16 +12,27 @@ function readCache(cacheKey, parse, isEmpty) {
     }
 }
 
+function initialState(url, cacheKey, parse, isEmpty, version) {
+    const cached = url ? readCache(cacheKey, parse, isEmpty) : null
+    return { key: `${cacheKey}#${version}`, data: cached, loading: !!url && !cached, error: null }
+}
+
 // Avvio istantaneo dalla copia in localStorage, poi aggiornamento silenzioso in background.
 // L'errore viene esposto solo se non c'era nessuna copia da mostrare.
-export function useCachedCsv(url, cacheKey, parse, isEmpty) {
-    const [state, setState] = useState(() => {
-        const cached = readCache(cacheKey, parse, isEmpty)
-        return { data: cached, loading: !cached, error: null }
-    })
+// url null = niente da caricare. Cambiare cacheKey o version riparte dalla copia in cache
+// (version serve dopo aver scritto la cache a mano, per esempio dopo un salvataggio).
+export function useCachedCsv(url, cacheKey, parse, isEmpty, version = 0) {
+    const [state, setState] = useState(() => initialState(url, cacheKey, parse, isEmpty, version))
+    let current = state
+    if (state.key !== `${cacheKey}#${version}`) {
+        current = initialState(url, cacheKey, parse, isEmpty, version)
+        setState(current)
+    }
 
     useEffect(() => {
+        if (!url) return
         let isMounted = true
+        const key = `${cacheKey}#${version}`
         const cachedCsv = localStorage.getItem(cacheKey)
 
         fetch(url)
@@ -35,7 +46,7 @@ export function useCachedCsv(url, cacheKey, parse, isEmpty) {
                     const parsed = parse(freshCsv)
                     if (!isEmpty(parsed)) {
                         localStorage.setItem(cacheKey, freshCsv)
-                        setState({ data: parsed, loading: false, error: null })
+                        setState({ key, data: parsed, loading: false, error: null })
                         return
                     }
                 }
@@ -52,7 +63,7 @@ export function useCachedCsv(url, cacheKey, parse, isEmpty) {
         return () => {
             isMounted = false
         }
-    }, [url, cacheKey, parse, isEmpty])
+    }, [url, cacheKey, parse, isEmpty, version])
 
-    return state
+    return current
 }

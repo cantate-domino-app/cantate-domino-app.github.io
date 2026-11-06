@@ -1,0 +1,76 @@
+import { createContext, useContext, useState, useCallback, useMemo } from 'react'
+import { useCachedCsv } from '../hooks/useCachedCsv'
+import { urlLettura } from '../lib/api'
+
+const CHIAVE_ATTIVA = 'parrocchia_attiva'
+const chiaveCache = (slug) => `cached_celebrazioni_${slug}`
+
+function leggiAttiva() {
+    try {
+        return localStorage.getItem(CHIAVE_ATTIVA) || null
+    } catch {
+        return null
+    }
+}
+
+function parseCelebrazioni(testo) {
+    const dati = JSON.parse(testo)
+    if (!dati.ok) throw new Error(dati.errore || 'Risposta non valida')
+    return { parrocchia: dati.parrocchia, righe: dati.righe || [], raccoglitore: dati.raccoglitore || [] }
+}
+
+// Una parrocchia senza celebrazioni è un dato valido, non una cache vuota
+const maiVuoto = () => false
+const NESSUN_RIFERIMENTO = new Map()
+
+const ParrocchiaContext = createContext()
+
+export function ParrocchiaProvider({ children }) {
+    const [slug, setSlug] = useState(leggiAttiva)
+    const [versione, setVersione] = useState(0)
+    const url = slug ? urlLettura('celebrazioni', { parrocchia: slug }) : null
+    const { data, loading, error } = useCachedCsv(url, chiaveCache(slug), parseCelebrazioni, maiVuoto, versione)
+
+    const scegli = useCallback((nuovo) => {
+        localStorage.setItem(CHIAVE_ATTIVA, nuovo)
+        setSlug(nuovo)
+    }, [])
+
+    // Dopo un salvataggio riuscito: mostra subito i dati nuovi, poi li riconferma dal server
+    const aggiornaDati = useCallback((nuovi) => {
+        localStorage.setItem(chiaveCache(slug), JSON.stringify({ ok: true, ...nuovi }))
+        setVersione((v) => v + 1)
+    }, [slug])
+
+    // Canto_ID (maiuscolo) → riferimento nel raccoglitore di questa parrocchia
+    const riferimenti = useMemo(() => {
+        if (!data) return NESSUN_RIFERIMENTO
+        return new Map(data.raccoglitore.map((r) => [r.cantoId.trim().toUpperCase(), r.riferimento]))
+    }, [data])
+
+    const valore = {
+        slug,
+        scegli,
+        dati: data,
+        loading,
+        error: error ? 'Impossibile caricare le celebrazioni della parrocchia.' : null,
+        aggiornaDati,
+        riferimenti,
+    }
+
+    return <ParrocchiaContext.Provider value={valore}>{children}</ParrocchiaContext.Provider>
+}
+
+export function useParrocchia() {
+    return useContext(ParrocchiaContext)
+}
+
+// Raccoglitore della parrocchia attiva; attivo = false se nessuna parrocchia è caricata
+export function useRaccoglitore() {
+    const { dati, riferimenti } = useParrocchia()
+    return useMemo(() => ({
+        attivo: !!dati,
+        nome: dati?.parrocchia?.nome || '',
+        riferimento: (songId) => riferimenti.get(songId.toUpperCase()) || '',
+    }), [dati, riferimenti])
+}
