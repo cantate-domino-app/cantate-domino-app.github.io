@@ -3,6 +3,10 @@ name: Deploy su GitHub Pages
 on:
   push:
     branches: ['main']
+  # Ogni ora ripubblica il catalogo, così i canti accettati compaiono senza intervento.
+  # shortcut: aggiornamento orario; se serve subito, "Run workflow" su GitHub.
+  schedule:
+    - cron: '17 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -32,6 +36,11 @@ jobs:
 
       - name: Installa dipendenze
         run: npm ci
+
+      - name: Scarica il catalogo dei canti
+        run: node scripts/scarica-catalogo.mjs
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
 
       - name: Build con Vite
         run: npm run build

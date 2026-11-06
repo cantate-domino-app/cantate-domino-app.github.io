@@ -18,4 +18,10 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    // Script Apps Script: file senza moduli, le funzioni sono globali condivise tra i file
+    files: ['apps-script/Logica.js', 'apps-script/Codice.js'],
+    languageOptions: { sourceType: 'script' },
+    rules: { 'no-undef': 'off', 'no-unused-vars': 'off' },
+  },
 ])

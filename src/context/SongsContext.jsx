@@ -1,19 +1,17 @@
 import { createContext, useContext, useMemo } from 'react'
-import Papa from 'papaparse'
 import { useCachedCsv } from '../hooks/useCachedCsv'
 import { buildSearchIndex } from '../lib/search'
 import { trovaColonnaRaccoglitore, riferimentoRaccoglitore } from '../lib/raccoglitore'
+import { BASE } from '../config'
 
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTOuSn2F5KZV-TYnF3yS92H_nEFYCPX_v-VmLtR4nqNXkh6tls7E94FP0ciMGomsPh5H-YBc4lBGFLH/pub?gid=0&single=true&output=csv'
-const CACHE_KEY = 'cached_songs_catalog_csv'
+// Catalogo statico generato dalla GitHub Action (scripts/scarica-catalogo.mjs)
+const CATALOGO_URL = `${BASE}canti.json`
+const CACHE_KEY = 'cached_songs_catalog_json'
 
-function parseCsvData(csvText) {
-    const results = Papa.parse(csvText, {
-        header: true,
-        skipEmptyLines: true,
-    })
-    const colonnaRaccoglitore = trovaColonnaRaccoglitore(results.meta.fields || [])
-    return (results.data || [])
+function parseCatalogo(testo) {
+    const canti = JSON.parse(testo).canti || []
+    const colonnaRaccoglitore = trovaColonnaRaccoglitore(Object.keys(canti[0] || {}))
+    return canti
         .filter((item) => item.Titolo && item.Titolo.trim() !== '')
         .map((item) => ({
             id: (item.ID || '').trim(),
@@ -35,7 +33,7 @@ const NO_SONGS = []
 const SongsContext = createContext()
 
 export function SongsProvider({ children }) {
-    const { data, loading, error: loadError } = useCachedCsv(CSV_URL, CACHE_KEY, parseCsvData, isEmpty)
+    const { data, loading, error: loadError } = useCachedCsv(CATALOGO_URL, CACHE_KEY, parseCatalogo, isEmpty)
     const songs = data || NO_SONGS
     const searchIndex = useMemo(() => buildSearchIndex(songs), [songs])
     const error = loadError ? 'Errore durante il caricamento dei canti.' : null

@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Catalogo scaricato in fase di build (scripts/scarica-catalogo.mjs)
+public/canti.json
