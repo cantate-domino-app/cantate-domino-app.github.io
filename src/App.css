@@ -748,12 +748,15 @@ h3 {
   font-variant-numeric: tabular-nums;
 }
 
+/* Il fondo sporge di poco oltre il testo; tetto fisso perché con testo grande
+   non esca dal margine della pagina */
 .lyrics-stanza.chorus {
+  --bleed: min(0.6em, 0.75rem);
   font-weight: 600;
   background: var(--chorus);
-  margin-left: -0.6em;
-  margin-right: -0.6em;
-  padding: 0.5em 0.6em;
+  margin-left: calc(-1 * var(--bleed));
+  margin-right: calc(-1 * var(--bleed));
+  padding: 0.5em var(--bleed);
   border-radius: 10px;
 }
 
