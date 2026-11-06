@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useParams, Link, useLocation } from 'react-router-dom'
 import { useSongs } from '../context/SongsContext'
 import { useAdmin } from '../context/AdminContext'
+import { useFontSize } from '../hooks/useFontSize'
+import { useWakeLock } from '../hooks/useWakeLock'
 import SongLyrics from '../components/SongLyrics'
 import FontSizeControls from '../components/FontSizeControls'
 
@@ -17,51 +19,11 @@ export default function SongPage() {
 
     const { isAdmin } = useAdmin()
 
-    // Dimensione font sincronizzata con localStorage
-    const [fontSize, setFontSize] = useState(() => {
-        const saved = localStorage.getItem('hymn_font_size')
-        return saved ? Number(saved) : 18
-    })
-
-    // Wake Lock per impedire allo schermo di spegnersi durante il canto/suono
-    const [wakeLockActive, setWakeLockActive] = useState(false)
-    const wakeLockRef = useRef(null)
+    const [fontSize, setFontSize] = useFontSize()
+    const wakeLock = useWakeLock()
 
     // Feedback copia link
     const [copied, setCopied] = useState(false)
-
-    // Gestione Screen Wake Lock API nativa
-    const toggleWakeLock = async () => {
-        if (!('wakeLock' in navigator)) {
-            alert('La funzione di schermo sempre attivo non è supportata dal tuo browser.')
-            return
-        }
-
-        try {
-            if (wakeLockActive && wakeLockRef.current) {
-                await wakeLockRef.current.release()
-                wakeLockRef.current = null
-                setWakeLockActive(false)
-            } else {
-                wakeLockRef.current = await navigator.wakeLock.request('screen')
-                setWakeLockActive(true)
-                wakeLockRef.current.addEventListener('release', () => {
-                    setWakeLockActive(false)
-                })
-            }
-        } catch (err) {
-            console.warn('Errore Wake Lock:', err)
-            setWakeLockActive(false)
-        }
-    }
-
-    useEffect(() => {
-        return () => {
-            if (wakeLockRef.current) {
-                wakeLockRef.current.release().catch(() => { })
-            }
-        }
-    }, [])
 
     const copyShareLink = () => {
         navigator.clipboard.writeText(window.location.href)
@@ -123,14 +85,17 @@ export default function SongPage() {
                 <div className="song-toolbar">
                     <FontSizeControls fontSize={fontSize} setFontSize={setFontSize} />
 
-                    <button
-                        type="button"
-                        className={`tool-button ${wakeLockActive ? 'active' : ''}`}
-                        onClick={toggleWakeLock}
-                        title="Mantieni lo schermo acceso durante la celebrazione"
-                    >
-                        {wakeLockActive ? '☀️ Schermo Sempre Attivo (ON)' : '🌙 Schermo Normale'}
-                    </button>
+                    {wakeLock.supported && (
+                        <button
+                            type="button"
+                            className={`tool-button ${wakeLock.active ? 'active' : ''}`}
+                            onClick={wakeLock.toggle}
+                            aria-pressed={wakeLock.active}
+                            title="Mantieni lo schermo acceso durante la celebrazione"
+                        >
+                            {wakeLock.active ? '☀️ Schermo Sempre Attivo (ON)' : '🌙 Schermo Normale'}
+                        </button>
+                    )}
 
                     <button
                         type="button"

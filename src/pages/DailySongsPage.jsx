@@ -1,9 +1,14 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import Papa from 'papaparse'
 import { useSongs } from '../context/SongsContext'
+import { useCachedCsv } from '../hooks/useCachedCsv'
+import { useFontSize } from '../hooks/useFontSize'
+import { useWakeLock } from '../hooks/useWakeLock'
 import SongLyrics from '../components/SongLyrics'
 import FontSizeControls from '../components/FontSizeControls'
+
+const NO_ROWS = []
 
 const CELEBRAZIONI_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTOuSn2F5KZV-TYnF3yS92H_nEFYCPX_v-VmLtR4nqNXkh6tls7E94FP0ciMGomsPh5H-YBc4lBGFLH/pub?gid=1649967796&single=true&output=csv'
 const CELEBRAZIONI_CACHE_KEY = 'cached_celebrations_schedule_csv'
@@ -111,152 +116,46 @@ function parseCelebrationCsv(csvText) {
     return { parsedRows, uniqueCelebs }
 }
 
+const isScheduleEmpty = (schedule) => schedule.parsedRows.length === 0
+
 export default function DailySongsPage() {
     const { songs, loading: songsLoading } = useSongs()
     const [searchParams, setSearchParams] = useSearchParams()
-    const [allScheduleRows, setAllScheduleRows] = useState([])
-    const [celebrations, setCelebrations] = useState([])
-    const [activeCelebration, setActiveCelebration] = useState('')
-    const [loadingSchedule, setLoadingSchedule] = useState(true)
-    const [errorSchedule, setErrorSchedule] = useState(null)
+    const {
+        data: schedule,
+        loading: loadingSchedule,
+        error: scheduleError,
+    } = useCachedCsv(CELEBRAZIONI_CSV_URL, CELEBRAZIONI_CACHE_KEY, parseCelebrationCsv, isScheduleEmpty)
+    const errorSchedule = scheduleError ? 'Impossibile caricare i canti della celebrazione.' : null
     const [copied, setCopied] = useState(false)
 
-    // Dimensione font sincronizzata con localStorage
-    const [fontSize, setFontSize] = useState(() => {
-        const saved = localStorage.getItem('hymn_font_size')
-        return saved ? Number(saved) : 17
-    })
+    const [fontSize, setFontSize] = useFontSize()
+    const wakeLock = useWakeLock()
 
-    // Gestione Wake Lock per lo schermo sempre attivo
-    const [wakeLockActive, setWakeLockActive] = useState(false)
-    const wakeLockRef = useRef(null)
+    // Testi aperti di default: si tiene traccia solo di quelli chiusi
+    const [collapsedLyrics, setCollapsedLyrics] = useState({})
 
-    const [expandedLyrics, setExpandedLyrics] = useState({})
+    const allScheduleRows = schedule?.parsedRows ?? NO_ROWS
+    const celebrations = schedule?.uniqueCelebs ?? NO_ROWS
 
-    useEffect(() => {
-        let isMounted = true
-        let hasLoadedCache = false
-
-        const applyParsedData = (parsedRows, uniqueCelebs) => {
-            setAllScheduleRows(parsedRows)
-            setCelebrations(uniqueCelebs)
-
-            const urlParam = searchParams.get('celebrazione') || searchParams.get('messa')
-            const savedCeleb = localStorage.getItem('active_celebration')
-
-            setActiveCelebration((prev) => {
-                if (urlParam && uniqueCelebs.some((c) => c.toLowerCase() === urlParam.toLowerCase())) {
-                    return uniqueCelebs.find((c) => c.toLowerCase() === urlParam.toLowerCase())
-                }
-                if (prev && uniqueCelebs.includes(prev)) {
-                    return prev
-                }
-                if (savedCeleb && uniqueCelebs.includes(savedCeleb)) {
-                    return savedCeleb
-                }
-                return uniqueCelebs[0] || ''
-            })
-
-            setExpandedLyrics((prevOpen) => {
-                const newOpen = { ...prevOpen }
-                parsedRows.forEach((row) => {
-                    if (newOpen[row.keyId] === undefined) {
-                        newOpen[row.keyId] = true
-                    }
-                })
-                return newOpen
-            })
-
-            setLoadingSchedule(false)
-        }
-
-        // 1. Tenta subito il caricamento istantaneo dalla memoria locale
-        const cachedCsv = localStorage.getItem(CELEBRAZIONI_CACHE_KEY)
-        if (cachedCsv) {
-            try {
-                const { parsedRows, uniqueCelebs } = parseCelebrationCsv(cachedCsv)
-                if (parsedRows.length > 0) {
-                    applyParsedData(parsedRows, uniqueCelebs)
-                    hasLoadedCache = true
-                }
-            } catch (err) {
-                console.warn('Errore lettura cache celebrazioni:', err)
-            }
-        }
-
-        // 2. Scarica la versione più recente in background
-        fetch(CELEBRAZIONI_CSV_URL)
-            .then((res) => {
-                if (!res.ok) throw new Error('Risposta di rete non valida')
-                return res.text()
-            })
-            .then((freshCsv) => {
-                if (!isMounted) return
-                if (freshCsv && freshCsv !== cachedCsv) {
-                    localStorage.setItem(CELEBRAZIONI_CACHE_KEY, freshCsv)
-                    const { parsedRows, uniqueCelebs } = parseCelebrationCsv(freshCsv)
-                    if (parsedRows.length > 0) {
-                        applyParsedData(parsedRows, uniqueCelebs)
-                    }
-                }
-                setLoadingSchedule(false)
-                setErrorSchedule(null)
-            })
-            .catch((err) => {
-                if (!isMounted) return
-                if (!hasLoadedCache) {
-                    console.error(err)
-                    setErrorSchedule('Impossibile caricare i canti della celebrazione.')
-                }
-                setLoadingSchedule(false)
-            })
-
-        return () => {
-            isMounted = false
-        }
-    }, [searchParams])
-
-    const toggleWakeLock = async () => {
-        if (!('wakeLock' in navigator)) {
-            alert('La funzione di schermo sempre attivo non è supportata dal tuo browser.')
-            return
-        }
-
-        try {
-            if (wakeLockActive && wakeLockRef.current) {
-                await wakeLockRef.current.release()
-                wakeLockRef.current = null
-                setWakeLockActive(false)
-            } else {
-                wakeLockRef.current = await navigator.wakeLock.request('screen')
-                setWakeLockActive(true)
-                wakeLockRef.current.addEventListener('release', () => {
-                    setWakeLockActive(false)
-                })
-            }
-        } catch (err) {
-            console.warn('Errore Wake Lock:', err)
-            setWakeLockActive(false)
-        }
-    }
-
-    useEffect(() => {
-        return () => {
-            if (wakeLockRef.current) {
-                wakeLockRef.current.release().catch(() => { })
-            }
-        }
-    }, [])
+    // Celebrazione attiva: parametro URL (anche legacy ?messa=), poi ultima scelta, poi la prima
+    const urlParam = searchParams.get('celebrazione') || searchParams.get('messa')
+    const activeCelebration = useMemo(() => {
+        const fromUrl = urlParam && celebrations.find((c) => c.toLowerCase() === urlParam.toLowerCase())
+        if (fromUrl) return fromUrl
+        const saved = localStorage.getItem('active_celebration')
+        if (saved && celebrations.includes(saved)) return saved
+        return celebrations[0] || ''
+    }, [urlParam, celebrations])
 
     const toggleLyrics = (keyId) => {
-        setExpandedLyrics((prev) => ({
+        setCollapsedLyrics((prev) => ({
             ...prev,
             [keyId]: !prev[keyId]
         }))
     }
 
     const handleSelectCelebration = (celeb) => {
-        setActiveCelebration(celeb)
         localStorage.setItem('active_celebration', celeb)
         setSearchParams({ celebrazione: celeb }, { replace: true })
     }
@@ -329,14 +228,17 @@ export default function DailySongsPage() {
                 <div className="daily-header-actions">
                     <FontSizeControls fontSize={fontSize} setFontSize={setFontSize} />
 
-                    <button
-                        type="button"
-                        className={`tool-button ${wakeLockActive ? 'active' : ''}`}
-                        onClick={toggleWakeLock}
-                        title="Mantieni lo schermo acceso durante la celebrazione"
-                    >
-                        {wakeLockActive ? '☀️ Schermo Attivo (ON)' : '🌙 Schermo Normale'}
-                    </button>
+                    {wakeLock.supported && (
+                        <button
+                            type="button"
+                            className={`tool-button ${wakeLock.active ? 'active' : ''}`}
+                            onClick={wakeLock.toggle}
+                            aria-pressed={wakeLock.active}
+                            title="Mantieni lo schermo acceso durante la celebrazione"
+                        >
+                            {wakeLock.active ? '☀️ Schermo Attivo (ON)' : '🌙 Schermo Normale'}
+                        </button>
+                    )}
 
                     {matchedSchedule.length > 0 && (
                         <button
@@ -377,7 +279,7 @@ export default function DailySongsPage() {
             ) : (
                 <div className="schedule-timeline">
                     {matchedSchedule.map((item) => {
-                        const isOpen = expandedLyrics[item.keyId]
+                        const isOpen = !collapsedLyrics[item.keyId]
 
                         return (
                             <article key={item.keyId} className="timeline-item">

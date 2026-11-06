@@ -1,11 +1,5 @@
 export default function FontSizeControls({ fontSize, setFontSize }) {
-    const changeFontSize = (delta) => {
-        setFontSize((prev) => {
-            const next = Math.min(Math.max(prev + delta, 14), 28)
-            localStorage.setItem('hymn_font_size', next)
-            return next
-        })
-    }
+    const changeFontSize = (delta) => setFontSize((prev) => prev + delta)
 
     return (
         <div className="font-controls">

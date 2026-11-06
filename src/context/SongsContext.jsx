@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext } from 'react'
 import Papa from 'papaparse'
+import { useCachedCsv } from '../hooks/useCachedCsv'
 
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTOuSn2F5KZV-TYnF3yS92H_nEFYCPX_v-VmLtR4nqNXkh6tls7E94FP0ciMGomsPh5H-YBc4lBGFLH/pub?gid=0&single=true&output=csv'
 const CACHE_KEY = 'cached_songs_catalog_csv'
@@ -24,65 +25,15 @@ function parseCsvData(csvText) {
         }))
 }
 
+const isEmpty = (songs) => songs.length === 0
+const NO_SONGS = []
+
 const SongsContext = createContext()
 
 export function SongsProvider({ children }) {
-    const [songs, setSongs] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
-
-    useEffect(() => {
-        let isMounted = true
-        let hasLoadedCache = false
-
-        // 1. Tenta subito il caricamento istantaneo dalla memoria locale
-        const cachedCsv = localStorage.getItem(CACHE_KEY)
-        if (cachedCsv) {
-            try {
-                const parsed = parseCsvData(cachedCsv)
-                if (parsed.length > 0) {
-                    setSongs(parsed)
-                    setLoading(false)
-                    hasLoadedCache = true
-                }
-            } catch (err) {
-                console.warn('Errore lettura cache canti:', err)
-            }
-        }
-
-        // 2. Scarica la versione più recente in background
-        fetch(CSV_URL)
-            .then((res) => {
-                if (!res.ok) throw new Error('Risposta di rete non valida')
-                return res.text()
-            })
-            .then((freshCsv) => {
-                if (!isMounted) return
-                // Aggiorna silenziosamente se i dati sono cambiati o se non c'era cache
-                if (freshCsv && freshCsv !== cachedCsv) {
-                    localStorage.setItem(CACHE_KEY, freshCsv)
-                    const parsed = parseCsvData(freshCsv)
-                    if (parsed.length > 0) {
-                        setSongs(parsed)
-                    }
-                }
-                setLoading(false)
-                setError(null)
-            })
-            .catch((err) => {
-                if (!isMounted) return
-                // Se non c'era nemmeno la cache, mostra errore; altrimenti silenzioso
-                if (!hasLoadedCache) {
-                    console.error('Impossibile caricare i canti:', err)
-                    setError('Errore durante il caricamento dei canti.')
-                }
-                setLoading(false)
-            })
-
-        return () => {
-            isMounted = false
-        }
-    }, [])
+    const { data, loading, error: loadError } = useCachedCsv(CSV_URL, CACHE_KEY, parseCsvData, isEmpty)
+    const songs = data || NO_SONGS
+    const error = loadError ? 'Errore durante il caricamento dei canti.' : null
 
     return (
         <SongsContext.Provider value={{ songs, loading, error }}>
