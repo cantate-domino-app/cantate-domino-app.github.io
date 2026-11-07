@@ -8,6 +8,7 @@ var SCHEDE = {
     parrocchie: 'Parrocchie',
     celebrazioni: 'Celebrazioni',
     proposte: 'Proposte',
+    richieste: 'Richieste',
 }
 
 // Intestazione nel foglio → chiave usata nel codice
@@ -15,6 +16,7 @@ var COLONNE = {
     Raccoglitori: [['Parrocchia', 'parrocchia'], ['Canto_ID', 'cantoId'], ['Riferimento', 'riferimento']],
     Parrocchie: [['Slug', 'slug'], ['Nome', 'nome'], ['Città', 'citta'], ['Sale', 'sale'], ['PasswordHash', 'passwordHash']],
     Celebrazioni: [['Parrocchia', 'parrocchia'], ['Celebrazione', 'celebrazione'], ['Ordine', 'ordine'], ['Momento', 'momento'], ['Canto_ID', 'cantoId'], ['Note', 'note']],
+    Richieste: [['Id', 'id'], ['Data', 'data'], ['Parrocchia', 'nome'], ['Città', 'citta'], ['Referente', 'referente'], ['Contatto', 'contatto'], ['Note', 'note'], ['Stato', 'stato']],
     Proposte: [['Id', 'id'], ['Data', 'data'], ['Parrocchia', 'parrocchia'], ['Titolo', 'titolo'], ['Autore', 'autore'], ['Link', 'link'], ['Testo', 'testo'], ['Note', 'note'], ['Nome', 'nome'], ['Stato', 'stato'], ['CantoAssegnato', 'cantoAssegnato']],
 }
 
@@ -64,8 +66,19 @@ function scrivi(nome, oggetti) {
     scheda.getRange(1, 1, righe.length, righe[0].length).setNumberFormat('@').setValues(righe)
 }
 
+// Le schede aggiunte dopo la prima preparazione del foglio si creano al primo uso
+function schedaOCrea(nome) {
+    var scheda = foglio().getSheetByName(nome)
+    if (!scheda) {
+        foglio().insertSheet(nome)
+        scrivi(nome, [])
+        scheda = foglio().getSheetByName(nome)
+    }
+    return scheda
+}
+
 function aggiungi(nome, oggetto) {
-    foglio().getSheetByName(nome).appendRow(COLONNE[nome].map(function (c) {
+    schedaOCrea(nome).appendRow(COLONNE[nome].map(function (c) {
         return cellaSicura(oggetto[c[1]])
     }))
 }
@@ -223,8 +236,10 @@ var AZIONI_PARROCCHIA = {
 var AZIONI_ADMIN = {
     elencoProposte: function () {
         var ids = idCanti()
+        schedaOCrea(SCHEDE.richieste)
         return {
             ok: true,
+            richieste: leggi(SCHEDE.richieste).filter(function (r) { return r.stato === 'nuova' }),
             proposte: leggi(SCHEDE.proposte)
                 .filter(function (p) { return p.stato === 'nuova' })
                 .map(function (p) { p.codiceProposto = codiceProposto(p.titolo, ids); return p }),
@@ -267,6 +282,18 @@ var AZIONI_ADMIN = {
             if (!proposta) return { ok: false, errore: 'Proposta non trovata.' }
             proposta.stato = 'rifiutata'
             scrivi(SCHEDE.proposte, proposte)
+            return { ok: true }
+        })
+    },
+
+    chiudiRichiesta: function (dati) {
+        return conBlocco(function () {
+            schedaOCrea(SCHEDE.richieste)
+            var richieste = leggi(SCHEDE.richieste)
+            var richiesta = richieste.filter(function (r) { return r.id === dati.id })[0]
+            if (!richiesta) return { ok: false, errore: 'Richiesta non trovata.' }
+            richiesta.stato = 'gestita'
+            scrivi(SCHEDE.richieste, richieste)
             return { ok: true }
         })
     },
@@ -324,8 +351,30 @@ function proponiCanto(dati) {
     })
 }
 
+function richiediParrocchia(dati) {
+    var campo = function (nome, max) { return String(dati[nome] || '').trim().slice(0, max) }
+    var nome = campo('nome', 80)
+    var contatto = campo('contatto', 120)
+    if (!nome) return { ok: false, errore: 'Il nome della parrocchia è obbligatorio.' }
+    if (!contatto) return { ok: false, errore: 'Serve un contatto (email o telefono) per poterti rispondere.' }
+    return conBlocco(function () {
+        aggiungi(SCHEDE.richieste, {
+            id: Utilities.getUuid(),
+            data: new Date().toISOString(),
+            nome: nome,
+            citta: campo('citta', 80),
+            referente: campo('referente', 80),
+            contatto: contatto,
+            note: campo('note', 1000),
+            stato: 'nuova',
+        })
+        return { ok: true }
+    })
+}
+
 function eseguiPost(dati) {
     if (dati.azione === 'proponiCanto') return proponiCanto(dati)
+    if (dati.azione === 'richiediParrocchia') return richiediParrocchia(dati)
     if (AZIONI_PARROCCHIA[dati.azione]) {
         var accesso = accediParrocchia(dati)
         if (accesso.errore) return { ok: false, errore: accesso.errore }

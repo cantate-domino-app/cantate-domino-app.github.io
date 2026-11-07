@@ -595,6 +595,43 @@ h3 {
   transition: background-color 0.15s;
 }
 
+/* Link alla guida "Aggiungi la tua parrocchia", in cima all'elenco */
+.parish-add-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 56px;
+  margin: 0.5rem 0 0;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--rubric);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.parish-add-link span {
+  flex: 1;
+}
+
+.parish-add-link:hover {
+  background: var(--rubric-soft);
+}
+
+.suggest-page-container > .search-bar-wrapper {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.guide-list {
+  display: grid;
+  gap: 0.6rem;
+  padding-left: 1.4rem;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
 /* Riga parrocchia: stessa riga dell'archivio, ma è un pulsante e non ha il codice */
 .parish-row {
   grid-template-columns: 1fr auto;

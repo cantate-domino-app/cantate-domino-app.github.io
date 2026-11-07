@@ -191,3 +191,32 @@ test('catalogo: senza scheda "Canti" risponde con un errore, non con la prima sc
     const f = finta({ Proposte: [['Id', 'Titolo'], ['p1', 'Ave']] })
     assert.equal(f.get({ azione: 'catalogo' }).ok, false)
 })
+
+test('richiediParrocchia: crea la scheda Richieste se manca e la richiesta arriva all\'admin', () => {
+    const f = nuovoFoglio()
+    // Il foglio vero è stato preparato prima che esistesse la scheda Richieste
+    f.S.SpreadsheetApp.getActive().getSheets().splice(f.S.SpreadsheetApp.getActive().getSheets().findIndex((s) => s.nome === 'Richieste'), 1)
+    assert.equal(f.scheda('Richieste'), undefined)
+
+    assert.equal(f.post({ azione: 'richiediParrocchia', nome: 'San Nicolò', contatto: '' }).ok, false)
+    assert.equal(f.post({ azione: 'richiediParrocchia', nome: '', contatto: 'a@b.it' }).ok, false)
+    assert.equal(f.post({ azione: 'richiediParrocchia', nome: 'San Nicolò', citta: 'Bari', referente: 'Anna', contatto: '=a@b.it', note: 'coro giovani' }).ok, true)
+    assert.ok(f.scheda('Richieste'))
+    assert.ok(f.scheda('Richieste').valori.at(-1).includes('\'=a@b.it'))
+
+    const { richieste } = f.post({ azione: 'elencoProposte', adminPassword: 'admin-segreta' })
+    assert.equal(richieste.length, 1)
+    assert.equal(richieste[0].nome, 'San Nicolò')
+    assert.equal(richieste[0].referente, 'Anna')
+
+    assert.equal(f.post({ azione: 'chiudiRichiesta', adminPassword: 'no', id: richieste[0].id }).ok, false)
+    assert.equal(f.post({ azione: 'chiudiRichiesta', adminPassword: 'admin-segreta', id: richieste[0].id }).ok, true)
+    assert.equal(f.post({ azione: 'elencoProposte', adminPassword: 'admin-segreta' }).richieste.length, 0)
+})
+
+test('i contatti delle richieste non escono dalle letture pubbliche', () => {
+    const f = nuovoFoglio()
+    f.post({ azione: 'richiediParrocchia', nome: 'San Nicolò', contatto: 'anna@example.it' })
+    assert.doesNotMatch(JSON.stringify(f.get({ azione: 'parrocchie' })), /anna@example/)
+    assert.doesNotMatch(JSON.stringify(f.get({ azione: 'catalogo' })), /anna@example/)
+})

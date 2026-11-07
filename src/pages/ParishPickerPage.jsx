@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useCachedCsv } from '../hooks/useCachedCsv'
 import { useParrocchia } from '../context/ParrocchiaContext'
 import { urlLettura } from '../lib/api'
@@ -27,8 +27,6 @@ export default function ParishPickerPage() {
 
     if (loading) return <p className="status-message">Caricamento delle parrocchie...</p>
     if (error) return <p className="status-message error">Impossibile caricare l'elenco delle parrocchie.</p>
-    // Con una sola parrocchia non c'è niente da scegliere
-    if (parrocchie?.length === 1) return <Navigate to={`/celebrazioni/${parrocchie[0].slug}`} replace />
 
     const apri = (slug) => {
         scegli(slug)
@@ -41,6 +39,12 @@ export default function ParishPickerPage() {
                 <h2>Scegli la parrocchia</h2>
                 <p className="suggest-subtitle">Le celebrazioni sono preparate dal coro di ogni parrocchia.</p>
             </header>
+
+            <Link to="/aggiungi-parrocchia" className="parish-add-link">
+                <Icon name="plus" size={20} />
+                <span>Scopri come aggiungere la tua parrocchia</span>
+                <Icon name="chevron-right" size={20} />
+            </Link>
 
             <div className="search-bar-wrapper">
                 <Icon name="search" />
@@ -69,7 +73,7 @@ export default function ParishPickerPage() {
             </div>
             {trovate.length === 0 && (
                 <p className="status-message">
-                    Nessuna parrocchia trovata. Per aggiungerne una, <Link to="/suggest">scrivici</Link>.
+                    Nessuna parrocchia trovata. <Link to="/aggiungi-parrocchia">Scopri come aggiungere la tua</Link>.
                 </p>
             )}
         </section>

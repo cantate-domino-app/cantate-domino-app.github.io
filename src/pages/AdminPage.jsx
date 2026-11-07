@@ -86,8 +86,35 @@ function Proposta({ proposta, chiamaAdmin, onFatto }) {
     )
 }
 
-function NuovaParrocchia({ chiamaAdmin, onFatto }) {
-    const [dati, setDati] = useState({ nome: '', citta: '', password: '' })
+function Richiesta({ richiesta, chiamaAdmin, onUsa, onFatto }) {
+    const [stato, setStato] = useState({ invio: false, errore: null })
+
+    const gestita = async () => {
+        setStato({ invio: true, errore: null })
+        const risposta = await chiamaAdmin('chiudiRichiesta', { id: richiesta.id })
+        if (!risposta.ok) return setStato({ invio: false, errore: risposta.errore })
+        onFatto(`Richiesta di ${richiesta.nome} segnata come gestita.`)
+    }
+
+    return (
+        <li className="edit-row">
+            <div>
+                <h4 className="admin-proposta-titolo">{richiesta.nome}</h4>
+                <p className="song-row-author">{[richiesta.citta, richiesta.referente].filter(Boolean).join(' · ')}</p>
+                <p><strong>Contatto:</strong> {richiesta.contatto}</p>
+                {richiesta.note && <p>{richiesta.note}</p>}
+            </div>
+            {stato.errore && <div className="suggest-error-banner" role="alert">{stato.errore}</div>}
+            <div className="edit-actions">
+                <button type="button" className="btn btn-primary" onClick={() => onUsa(richiesta)}>Usa per nuova parrocchia</button>
+                <button type="button" className="btn" disabled={stato.invio} onClick={gestita}>Segna come gestita</button>
+            </div>
+        </li>
+    )
+}
+
+function NuovaParrocchia({ chiamaAdmin, onFatto, iniziale }) {
+    const [dati, setDati] = useState({ nome: iniziale?.nome || '', citta: iniziale?.citta || '', password: '' })
     const [stato, setStato] = useState({ invio: false, errore: null })
     const cambia = (e) => setDati((d) => ({ ...d, [e.target.name]: e.target.value }))
 
@@ -162,6 +189,9 @@ function Parrocchia({ parrocchia, chiamaAdmin, onFatto }) {
 export default function AdminPage() {
     const { isAdmin, accedi, chiamaAdmin, logout } = useAdmin()
     const [proposte, setProposte] = useState(null)
+    const [richieste, setRichieste] = useState([])
+    // Dati di una richiesta copiati nel modulo "Nuova parrocchia"
+    const [daRichiesta, setDaRichiesta] = useState(null)
     const [parrocchie, setParrocchie] = useState(null)
     const [errore, setErrore] = useState(null)
     const [messaggio, setMessaggio] = useState(null)
@@ -169,7 +199,9 @@ export default function AdminPage() {
     const carica = useCallback(async () => {
         const risposta = await chiamaAdmin('elencoProposte')
         if (!risposta.ok) return setErrore(risposta.errore)
+        setErrore(null)
         setProposte(risposta.proposte)
+        setRichieste(risposta.richieste || [])
         try {
             setParrocchie((await leggiApi('parrocchie')).parrocchie)
         } catch (err) {
@@ -180,6 +212,11 @@ export default function AdminPage() {
     useEffect(() => {
         if (isAdmin) carica()
     }, [isAdmin, carica])
+
+    const usaRichiesta = (richiesta) => {
+        setDaRichiesta(richiesta)
+        requestAnimationFrame(() => document.getElementById('nuova-parrocchia')?.scrollIntoView({ behavior: 'smooth' }))
+    }
 
     const fatto = (testo) => {
         setMessaggio(testo)
@@ -204,6 +241,17 @@ export default function AdminPage() {
                     {errore && <div className="suggest-error-banner" role="alert">{errore}</div>}
                     {messaggio && <div className="form-ok" role="status">{messaggio}</div>}
 
+                    {richieste.length > 0 && (
+                        <>
+                            <h3 className="admin-sezione">Richieste di nuove parrocchie</h3>
+                            <ul className="edit-rows">
+                                {richieste.map((r) => (
+                                    <Richiesta key={r.id} richiesta={r} chiamaAdmin={chiamaAdmin} onUsa={usaRichiesta} onFatto={fatto} />
+                                ))}
+                            </ul>
+                        </>
+                    )}
+
                     <h3 className="admin-sezione">Proposte nuove</h3>
                     {proposte === null ? (
                         <p className="status-message">Caricamento...</p>
@@ -221,7 +269,14 @@ export default function AdminPage() {
                             {parrocchie.map((p) => <Parrocchia key={p.slug} parrocchia={p} chiamaAdmin={chiamaAdmin} onFatto={fatto} />)}
                         </ul>
                     )}
-                    <NuovaParrocchia chiamaAdmin={chiamaAdmin} onFatto={fatto} />
+                    <div id="nuova-parrocchia">
+                        <NuovaParrocchia
+                            key={daRichiesta?.id || 'vuota'}
+                            iniziale={daRichiesta}
+                            chiamaAdmin={chiamaAdmin}
+                            onFatto={fatto}
+                        />
+                    </div>
                 </>
             )}
         </section>

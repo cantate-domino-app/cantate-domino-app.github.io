@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAdmin } from '../context/AdminContext'
 import { useTheme } from '../context/ThemeContext'
-import { useParrocchia } from '../context/ParrocchiaContext'
 import IosInstallPrompt, { isIosDevice } from './IosInstallPrompt'
 import Icon from './Icon'
 
@@ -14,7 +13,6 @@ export default function Navbar() {
     const location = useLocation()
     const { isAdmin, logout } = useAdmin()
     const { theme, toggleTheme } = useTheme()
-    const { slug } = useParrocchia()
 
     // Gestione installazione PWA (Chrome, Edge, Android + rilevamento iOS)
     useEffect(() => {
@@ -133,7 +131,7 @@ export default function Navbar() {
                         Tutti i Canti
                     </Link>
                     <Link
-                        to={slug ? `/celebrazioni/${slug}` : '/celebrazioni'}
+                        to="/celebrazioni"
                         className={`sidebar-link ${location.pathname.startsWith('/celebrazioni') ? 'active' : ''}`}
                         onClick={closeMenu}
                     >

@@ -49,6 +49,7 @@ L'app sarà su `https://<utente>.github.io/<nome-repo>/`. Il catalogo dei canti 
 1. Aprire `https://<utente>.github.io/<nome-repo>/#/admin` ed entrare con la password admin.
 2. In **Parrocchie**, su "Santa Chiara": **Reimposta password** e scegliere la password del coro. Va data a Luca e ai coristi che preparano le celebrazioni.
 3. Le altre parrocchie si aggiungono da **Nuova parrocchia**. Partono con il raccoglitore vuoto.
+4. Le richieste arrivate dal modulo "Aggiungi la tua parrocchia" compaiono in cima al pannello, con il contatto di chi le ha mandate. Sono salvate nella scheda `Richieste` del foglio, che lo script crea da solo alla prima richiesta, e non sono mai visibili nell'app pubblica.
 
 ## Come funziona, in breve
 
@@ -58,7 +59,8 @@ L'app sarà su `https://<utente>.github.io/<nome-repo>/`. Il catalogo dei canti 
 | Modificare le celebrazioni di una parrocchia | Chi ha la password del coro | App → Celebrazioni → Modifica |
 | Aggiungere un canto al raccoglitore della parrocchia | Chi ha la password del coro | Pagina del canto |
 | Proporre un canto nuovo | Tutti | App → Suggerisci canto |
-| Accettare proposte, creare parrocchie | Admin | App → `#/admin` |
+| Chiedere di aggiungere una parrocchia | Tutti | App → Celebrazioni → "Scopri come aggiungere la tua parrocchia" |
+| Accettare proposte, gestire richieste, creare parrocchie | Admin | App → `#/admin` |
 | Correggere testi, tag, spartiti | Chi ha accesso al foglio | Foglio Google, scheda Canti |
 
 Dopo 5 password sbagliate in 10 minuti lo script blocca i tentativi per quella parrocchia, o per l'admin, finché non passano i 10 minuti.
