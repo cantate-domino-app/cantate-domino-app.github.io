@@ -4,7 +4,7 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { APP_NAME, APP_SHORT_NAME, APP_DESCRIPTION } from './src/config.js'
 
-const base = process.env.BASE_PATH || '/canti-liturgici/'
+const base = process.env.BASE_PATH || '/'
 
 // https://vite.dev/config/
 export default defineConfig({

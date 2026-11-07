@@ -1,4 +1,4 @@
-# Messa in funzione di "Canti Liturgici"
+# Messa in funzione di "Cantate Domino"
 
 Questa guida porta dalla copia del foglio all'app pubblicata. Si fa una volta sola e richiede circa mezz'ora. Il foglio di Luca e la sua app non vengono toccati.
 
@@ -37,16 +37,16 @@ Se in futuro si cambia lo script: **Esegui il deployment → Gestisci deployment
 
 ## 5. Pubblicare l'app
 
-1. Creare il nuovo repository su GitHub e caricarci il codice (branch `main`).
+1. L'app vive nel repository `cantate-domino-app.github.io` dell'organizzazione GitHub `cantate-domino-app` (branch `main`). Il nome del repository uguale a `<organizzazione>.github.io` è ciò che la pubblica alla radice dell'indirizzo.
 2. **Settings → Secrets and variables → Actions → Variables → New repository variable**: nome `VITE_API_URL`, valore l'URL del punto 4.
 3. **Settings → Pages → Source: GitHub Actions**.
 4. **Actions → Deploy su GitHub Pages → Run workflow**.
 
-L'app sarà su `https://<utente>.github.io/<nome-repo>/`. Il catalogo dei canti si aggiorna da solo ogni ora. Per vederlo subito dopo una modifica nel foglio basta rilanciare "Run workflow".
+L'app sarà su `https://cantate-domino-app.github.io/`. Il catalogo dei canti si aggiorna da solo ogni ora. Per vederlo subito dopo una modifica nel foglio basta rilanciare "Run workflow".
 
 ## 6. Primo accesso
 
-1. Aprire `https://<utente>.github.io/<nome-repo>/#/admin` ed entrare con la password admin.
+1. Aprire `https://cantate-domino-app.github.io/#/admin` ed entrare con la password admin.
 2. In **Parrocchie**, su "Santa Chiara": **Reimposta password** e scegliere la password del coro. Va data a Luca e ai coristi che preparano le celebrazioni.
 3. Le altre parrocchie si aggiungono da **Nuova parrocchia**. Partono con il raccoglitore vuoto.
 4. Le richieste arrivate dal modulo "Aggiungi la tua parrocchia" compaiono in cima al pannello, con il contatto di chi le ha mandate. Sono salvate nella scheda `Richieste` del foglio, che lo script crea da solo alla prima richiesta, e non sono mai visibili nell'app pubblica.

@@ -1,4 +1,4 @@
-# Canti Liturgici
+# Cantate Domino
 
 Archivio di canti liturgici per cori e musicisti: testi, spartiti, link YouTube e i canti delle celebrazioni di ogni parrocchia. È una PWA che si installa sul telefono e funziona anche offline. È gratuita e non è in vendita.
 
@@ -16,7 +16,7 @@ La messa in funzione passo per passo è in [`docs/universale/SETUP.md`](docs/uni
 npm run dev       # server di sviluppo
 npm test          # test (logica dello script e librerie)
 npm run lint
-npm run build     # serve VITE_API_URL e, se diverso, BASE_PATH (default /canti-liturgici/)
+npm run build     # serve VITE_API_URL e, se diverso, BASE_PATH (default /)
 node scripts/report-dati.mjs > docs/universale/report-dati.md   # report qualità dati
 ```
 

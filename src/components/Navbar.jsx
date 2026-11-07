@@ -4,6 +4,7 @@ import { useAdmin } from '../context/AdminContext'
 import { useTheme } from '../context/ThemeContext'
 import IosInstallPrompt, { isIosDevice } from './IosInstallPrompt'
 import Icon from './Icon'
+import { APP_NAME } from '../config'
 
 export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false)
@@ -65,7 +66,7 @@ export default function Navbar() {
                         <div className="navbar-title-row">
                             <h1>
                                 <Link to="/">
-                                    Canti Liturgici
+                                    {APP_NAME}
                                 </Link>
                             </h1>
                             {isAdmin && <span className="admin-active-badge">Admin</span>}
