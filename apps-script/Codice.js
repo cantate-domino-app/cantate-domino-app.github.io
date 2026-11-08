@@ -242,17 +242,31 @@ var AZIONI_ADMIN = {
             richieste: leggi(SCHEDE.richieste).filter(function (r) { return r.stato === 'nuova' }),
             proposte: leggi(SCHEDE.proposte)
                 .filter(function (p) { return p.stato === 'nuova' })
-                .map(function (p) { p.codiceProposto = codiceProposto(p.titolo, ids); return p }),
+                .map(function (p) { p.codicePredefinito = prossimoIdProgressivo(ids); return p }),
         }
     },
 
     accettaProposta: function (dati) {
+        // Il codice è facoltativo: se manca si usa il prossimo numero progressivo.
         var codice = String(dati.codice || '').trim()
-        if (!/^[A-Za-z]{1,5}\d{1,4}$/.test(codice)) return { ok: false, errore: 'Codice non valido: lettere seguite da un numero, per esempio A27.' }
+        if (codice && !/^[A-Za-z]{1,5}\d{1,4}$/.test(codice)) return { ok: false, errore: 'Codice non valido: lettere seguite da un numero, per esempio A27.' }
         return conBlocco(function () {
             var proposte = leggi(SCHEDE.proposte)
             var proposta = proposte.filter(function (p) { return p.id === dati.id })[0]
             if (!proposta || proposta.stato !== 'nuova') return { ok: false, errore: 'Proposta non trovata o già gestita.' }
+            // L'admin può correggere i dati proposti prima di accettare (i campi non inviati restano com'erano).
+            var modifiche = dati.modifiche || {}
+            var campo = function (nome, max) {
+                return modifiche[nome] == null ? proposta[nome] : String(modifiche[nome]).trim().slice(0, max)
+            }
+            proposta.titolo = campo('titolo', 150)
+            if (!proposta.titolo) return { ok: false, errore: 'Il titolo del canto è obbligatorio.' }
+            proposta.autore = campo('autore', 150)
+            proposta.link = campo('link', 500)
+            proposta.testo = campo('testo', 10000)
+            proposta.note = campo('note', 1000)
+            var spartito = String(modifiche.spartito || '').trim().slice(0, 500)
+            if (!codice) codice = prossimoIdProgressivo(idCanti())
             var esiste = idCanti().some(function (id) { return id.toUpperCase() === codice.toUpperCase() })
             if (esiste) return { ok: false, errore: 'Il codice ' + codice + ' è già usato da un altro canto.' }
             var canti = schedaCanti()
@@ -264,6 +278,7 @@ var AZIONI_ADMIN = {
                 Autori: proposta.autore,
                 Tag: String(dati.tag || '').trim(),
                 'Link Youtube': youtube ? proposta.link : '',
+                'Spartito Originale': spartito,
                 Testo: proposta.testo,
                 Note: youtube || !proposta.link ? proposta.note : [proposta.note, proposta.link].filter(String).join(' — '),
             }

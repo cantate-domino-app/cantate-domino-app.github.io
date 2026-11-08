@@ -32,11 +32,10 @@ test('hashPassword: accetta i byte con segno di Apps Script', () => {
     assert.equal(L.hashPassword('coro', 's', conSegno), L.hashPassword('coro', 's', sha256))
 })
 
-test('codiceProposto: iniziale del titolo + primo numero libero', () => {
-    assert.equal(L.codiceProposto('Ave Maria', ['A1', 'A2', 'B1']), 'A3')
-    assert.equal(L.codiceProposto('Ève', ['E1']), 'E2')
-    assert.equal(L.codiceProposto('Ave', ['A1', 'A3']), 'A2')
-    assert.equal(L.codiceProposto('alleluia', ['all17', 'a1']), 'A2')
+test('prossimoIdProgressivo: numero successivo all\'ultimo ordinale', () => {
+    assert.equal(L.prossimoIdProgressivo(['A1', 'B2']), '1')
+    assert.equal(L.prossimoIdProgressivo(['A1', '1', '2', ' 7 ']), '8')
+    assert.equal(L.prossimoIdProgressivo([]), '1')
 })
 
 test('riferimentoProposto: primo numero libero nel raccoglitore', () => {
