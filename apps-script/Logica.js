@@ -34,9 +34,14 @@ function primoNumeroLibero(codici, prefisso) {
     return prefisso + n
 }
 
-function codiceProposto(titolo, ids) {
-    var lettera = senzaAccenti(titolo).toUpperCase().match(/[A-Z]/)
-    return primoNumeroLibero(ids, lettera ? lettera[0] : 'X')
+// Codice predefinito di un canto senza codice scelto: il numero successivo all'ultimo ordinale in uso.
+function prossimoIdProgressivo(ids) {
+    var massimo = 0
+    ids.forEach(function (id) {
+        var testo = String(id).trim()
+        if (/^\d+$/.test(testo)) massimo = Math.max(massimo, Number(testo))
+    })
+    return String(massimo + 1)
 }
 
 function riferimentoProposto(riferimenti, prefisso) {

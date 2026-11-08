@@ -36,9 +36,18 @@ function Accesso({ accedi }) {
 }
 
 function Proposta({ proposta, chiamaAdmin, onFatto }) {
-    const [codice, setCodice] = useState(proposta.codiceProposto)
+    const [codice, setCodice] = useState('')
     const [tag, setTag] = useState('')
+    const [modifiche, setModifiche] = useState({
+        titolo: proposta.titolo || '',
+        autore: proposta.autore || '',
+        link: proposta.link || '',
+        spartito: '',
+        testo: proposta.testo || '',
+        note: proposta.note || '',
+    })
     const [stato, setStato] = useState({ invio: false, errore: null })
+    const cambia = (e) => setModifiche((m) => ({ ...m, [e.target.name]: e.target.value }))
 
     const esegui = async (azione, dati) => {
         setStato({ invio: true, errore: null })
@@ -54,28 +63,45 @@ function Proposta({ proposta, chiamaAdmin, onFatto }) {
             <div>
                 <h4 className="admin-proposta-titolo">{proposta.titolo}</h4>
                 <p className="song-row-author">
-                    {[proposta.autore, proposta.parrocchia, proposta.nome].filter(Boolean).join(' · ')}
+                    Proposto da: {[proposta.parrocchia, proposta.nome].filter(Boolean).join(' · ') || 'anonimo'}
                 </p>
-                {proposta.link && <p><a href={proposta.link} target="_blank" rel="noopener noreferrer">{proposta.link}</a></p>}
-                {proposta.note && <p>{proposta.note}</p>}
-                {proposta.testo && (
-                    <details>
-                        <summary>Testo</summary>
-                        <pre className="admin-testo">{proposta.testo}</pre>
-                    </details>
-                )}
+                {proposta.link && <p><a href={proposta.link} target="_blank" rel="noopener noreferrer">Apri il link proposto</a></p>}
             </div>
             {stato.errore && <div className="suggest-error-banner" role="alert">{stato.errore}</div>}
             <div className="form-group">
-                <label htmlFor={`codice-${proposta.id}`}>Codice nell'archivio</label>
-                <input id={`codice-${proposta.id}`} type="text" maxLength={10} value={codice} onChange={(e) => setCodice(e.target.value)} />
+                <label htmlFor={`titolo-${proposta.id}`}>Titolo</label>
+                <input id={`titolo-${proposta.id}`} name="titolo" type="text" maxLength={150} value={modifiche.titolo} onChange={cambia} />
+            </div>
+            <div className="form-group">
+                <label htmlFor={`autore-${proposta.id}`}>Autori</label>
+                <input id={`autore-${proposta.id}`} name="autore" type="text" maxLength={150} value={modifiche.autore} onChange={cambia} />
+            </div>
+            <div className="form-group">
+                <label htmlFor={`link-${proposta.id}`}>Link (YouTube o altro)</label>
+                <input id={`link-${proposta.id}`} name="link" type="text" maxLength={500} value={modifiche.link} onChange={cambia} />
+            </div>
+            <div className="form-group">
+                <label htmlFor={`spartito-${proposta.id}`}>Spartito <span className="optional">(link Drive, facoltativo)</span></label>
+                <input id={`spartito-${proposta.id}`} name="spartito" type="text" maxLength={500} value={modifiche.spartito} onChange={cambia} />
+            </div>
+            <div className="form-group">
+                <label htmlFor={`testo-${proposta.id}`}>Testo</label>
+                <textarea id={`testo-${proposta.id}`} name="testo" rows={8} maxLength={10000} value={modifiche.testo} onChange={cambia} />
+            </div>
+            <div className="form-group">
+                <label htmlFor={`note-${proposta.id}`}>Note</label>
+                <textarea id={`note-${proposta.id}`} name="note" rows={3} maxLength={1000} value={modifiche.note} onChange={cambia} />
+            </div>
+            <div className="form-group">
+                <label htmlFor={`codice-${proposta.id}`}>Codice nell'archivio <span className="optional">(facoltativo)</span></label>
+                <input id={`codice-${proposta.id}`} type="text" maxLength={10} placeholder={`Se vuoto: ${proposta.codicePredefinito}`} value={codice} onChange={(e) => setCodice(e.target.value)} />
             </div>
             <div className="form-group">
                 <label htmlFor={`tag-${proposta.id}`}>Tag <span className="optional">(facoltativi, separati da virgola)</span></label>
                 <input id={`tag-${proposta.id}`} type="text" placeholder="es. comunione, quaresima" value={tag} onChange={(e) => setTag(e.target.value)} />
             </div>
             <div className="edit-actions">
-                <button type="button" className="btn btn-primary" disabled={stato.invio} onClick={() => esegui('accettaProposta', { codice, tag })}>
+                <button type="button" className="btn btn-primary" disabled={stato.invio} onClick={() => esegui('accettaProposta', { codice, tag, modifiche })}>
                     Accetta
                 </button>
                 <button type="button" className="btn" disabled={stato.invio} onClick={() => esegui('rifiutaProposta')}>

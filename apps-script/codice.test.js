@@ -133,7 +133,7 @@ test('proponiCanto e accettaProposta con il codice proposto', () => {
 
     assert.equal(f.post({ azione: 'elencoProposte', adminPassword: 'no' }).errore, 'Password admin non corretta.')
     const [proposta] = f.post({ azione: 'elencoProposte', adminPassword: 'admin-segreta' }).proposte
-    assert.equal(proposta.codiceProposto, 'A3')
+    assert.equal(proposta.codicePredefinito, '1')
 
     const doppio = f.post({ azione: 'accettaProposta', adminPassword: 'admin-segreta', id: proposta.id, codice: 'a1' })
     assert.equal(doppio.ok, false)
