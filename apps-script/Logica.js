@@ -34,7 +34,7 @@ function primoNumeroLibero(codici, prefisso) {
     return prefisso + n
 }
 
-// Codice predefinito di un canto senza codice scelto: il numero successivo all'ultimo ordinale in uso.
+// ID interno di un canto nuovo: il numero successivo all'ultimo ordinale in uso.
 function prossimoIdProgressivo(ids) {
     var massimo = 0
     ids.forEach(function (id) {

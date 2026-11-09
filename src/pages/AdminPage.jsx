@@ -36,7 +36,6 @@ function Accesso({ accedi }) {
 }
 
 function Proposta({ proposta, chiamaAdmin, onFatto }) {
-    const [codice, setCodice] = useState('')
     const [tag, setTag] = useState('')
     const [modifiche, setModifiche] = useState({
         titolo: proposta.titolo || '',
@@ -54,7 +53,7 @@ function Proposta({ proposta, chiamaAdmin, onFatto }) {
         const risposta = await chiamaAdmin(azione, { id: proposta.id, ...dati })
         if (!risposta.ok) return setStato({ invio: false, errore: risposta.errore })
         onFatto(azione === 'accettaProposta'
-            ? `"${proposta.titolo}" accettato come ${risposta.codice}. Visibile nell'archivio entro un'ora.`
+            ? `"${proposta.titolo}" accettato. ${risposta.pubblicato ? 'Sarà online tra un paio di minuti.' : 'Sarà online entro qualche ora: la pubblicazione immediata non è riuscita.'}`
             : `"${proposta.titolo}" rifiutato.`)
     }
 
@@ -93,15 +92,11 @@ function Proposta({ proposta, chiamaAdmin, onFatto }) {
                 <textarea id={`note-${proposta.id}`} name="note" rows={3} maxLength={1000} value={modifiche.note} onChange={cambia} />
             </div>
             <div className="form-group">
-                <label htmlFor={`codice-${proposta.id}`}>Codice nell'archivio <span className="optional">(facoltativo)</span></label>
-                <input id={`codice-${proposta.id}`} type="text" maxLength={10} placeholder={`Se vuoto: ${proposta.codicePredefinito}`} value={codice} onChange={(e) => setCodice(e.target.value)} />
-            </div>
-            <div className="form-group">
                 <label htmlFor={`tag-${proposta.id}`}>Tag <span className="optional">(facoltativi, separati da virgola)</span></label>
                 <input id={`tag-${proposta.id}`} type="text" placeholder="es. comunione, quaresima" value={tag} onChange={(e) => setTag(e.target.value)} />
             </div>
             <div className="edit-actions">
-                <button type="button" className="btn btn-primary" disabled={stato.invio} onClick={() => esegui('accettaProposta', { codice, tag, modifiche })}>
+                <button type="button" className="btn btn-primary" disabled={stato.invio} onClick={() => esegui('accettaProposta', { tag, modifiche })}>
                     Accetta
                 </button>
                 <button type="button" className="btn" disabled={stato.invio} onClick={() => esegui('rifiutaProposta')}>

@@ -24,6 +24,8 @@ function finta(schede) {
     const elenco = Object.entries(schede).map(([n, v]) => crea(n, v))
     const cache = new Map()
     const proprieta = new Map()
+    const chiamateGithub = []
+    const rispostaGithub = { codice: 204 }
     const ambiente = {
         SpreadsheetApp: {
             getActive: () => ({
@@ -31,6 +33,7 @@ function finta(schede) {
                 getSheets: () => elenco,
                 insertSheet: (n) => { const s = crea(n, []); elenco.push(s); return s },
             }),
+            flush() {},
         },
         ContentService: {
             MimeType: { JSON: 'json' },
@@ -49,6 +52,12 @@ function finta(schede) {
                 remove: (k) => cache.delete(k),
             }),
         },
+        UrlFetchApp: {
+            fetch: (url, opzioni) => {
+                chiamateGithub.push({ url, opzioni })
+                return { getResponseCode: () => rispostaGithub.codice }
+            },
+        },
         LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
         PropertiesService: {
             getScriptProperties: () => ({
@@ -62,6 +71,9 @@ function finta(schede) {
     return {
         S,
         scheda,
+        proprieta,
+        chiamateGithub,
+        rispostaGithub,
         get: (parametri) => JSON.parse(S.doGet({ parameter: parametri }).testo),
         post: (dati) => JSON.parse(S.doPost({ postData: { contents: JSON.stringify(dati) } }).testo),
         impostaAdmin: (password) => {
@@ -126,24 +138,40 @@ test('salvaCelebrazione rifiuta un canto inesistente', () => {
     assert.match(r.errore, /ZZ1/)
 })
 
-test('proponiCanto e accettaProposta con il codice proposto', () => {
+test('proponiCanto e accettaProposta con ID interno automatico', () => {
     const f = nuovoFoglio()
     assert.equal(f.post({ azione: 'proponiCanto', titolo: ' ' }).ok, false)
     assert.equal(f.post({ azione: 'proponiCanto', titolo: 'Ave Maria', link: 'https://youtu.be/x' }).ok, true)
 
     assert.equal(f.post({ azione: 'elencoProposte', adminPassword: 'no' }).errore, 'Password admin non corretta.')
     const [proposta] = f.post({ azione: 'elencoProposte', adminPassword: 'admin-segreta' }).proposte
-    assert.equal(proposta.codicePredefinito, '1')
-
-    const doppio = f.post({ azione: 'accettaProposta', adminPassword: 'admin-segreta', id: proposta.id, codice: 'a1' })
-    assert.equal(doppio.ok, false)
-    assert.equal(f.post({ azione: 'accettaProposta', adminPassword: 'admin-segreta', id: proposta.id, codice: 'A3', tag: 'mariano' }).ok, true)
+    assert.equal(f.post({ azione: 'accettaProposta', adminPassword: 'admin-segreta', id: proposta.id, tag: 'mariano' }).ok, true)
 
     const canti = f.get({ azione: 'catalogo' }).canti
-    assert.deepEqual(canti.at(-1), { ID: 'A3', Titolo: 'Ave Maria', Autori: '', Tag: 'mariano', 'Link Youtube': 'https://youtu.be/x', Testo: '', Note: '' })
+    assert.deepEqual(canti.at(-1), { ID: '1', Titolo: 'Ave Maria', Autori: '', Tag: 'mariano', 'Link Youtube': 'https://youtu.be/x', Testo: '', Note: '' })
     assert.equal(f.post({ azione: 'elencoProposte', adminPassword: 'admin-segreta' }).proposte.length, 0)
     // Il canto nuovo non entra nel raccoglitore di nessuno
-    assert.equal(f.get({ azione: 'celebrazioni', parrocchia: 'santa-chiara' }).raccoglitore.some((r) => r.cantoId === 'A3'), false)
+    assert.equal(f.get({ azione: 'celebrazioni', parrocchia: 'santa-chiara' }).raccoglitore.some((r) => r.cantoId === '1'), false)
+})
+
+test('accettaProposta pubblica subito; senza token o con errore GitHub il canto resta accettato', () => {
+    const f = nuovoFoglio()
+    const accetta = () => {
+        f.post({ azione: 'proponiCanto', titolo: 'Ave' })
+        const [p] = f.post({ azione: 'elencoProposte', adminPassword: 'admin-segreta' }).proposte
+        return f.post({ azione: 'accettaProposta', adminPassword: 'admin-segreta', id: p.id })
+    }
+    assert.deepEqual(accetta(), { ok: true, pubblicato: false })
+    assert.equal(f.chiamateGithub.length, 0)
+
+    f.proprieta.set('GITHUB_TOKEN', 'tok')
+    assert.deepEqual(accetta(), { ok: true, pubblicato: true })
+    assert.match(f.chiamateGithub[0].url, /cantate-domino-app\.github\.io\/actions\/workflows\/deploy\.yml\/dispatches$/)
+    assert.equal(f.chiamateGithub[0].opzioni.headers.Authorization, 'Bearer tok')
+
+    f.rispostaGithub.codice = 401
+    assert.deepEqual(accetta(), { ok: true, pubblicato: false })
+    assert.deepEqual(f.get({ azione: 'catalogo' }).canti.slice(-3).map((c) => c.ID), ['1', '2', '3'])
 })
 
 test('salvaRiferimento: riferimento già usato rifiutato, vuoto toglie dal raccoglitore', () => {

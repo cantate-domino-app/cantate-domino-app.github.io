@@ -35,7 +35,8 @@ export function useCachedCsv(url, cacheKey, parse, isEmpty, version = 0) {
         const key = `${cacheKey}#${version}`
         const cachedCsv = localStorage.getItem(cacheKey)
 
-        fetch(url)
+        // GitHub Pages fa tenere il file in cache 10 minuti: no-cache lo fa ricontrollare a ogni apertura
+        fetch(url, { cache: 'no-cache' })
             .then((res) => {
                 if (!res.ok) throw new Error('Risposta di rete non valida')
                 return res.text()

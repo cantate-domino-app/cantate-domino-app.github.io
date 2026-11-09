@@ -24,8 +24,11 @@ test('tutti i token devono esserci (AND)', () => {
     assert.deepEqual(ids(searchSongs(index, 'acclamate frisina')), ['A2'])
 })
 
-test('ID esatto', () => {
-    assert.equal(ids(searchSongs(index, 'c1'))[0], 'C1')
+test('riferimento della parrocchia: solo esatto, l\'ID interno non si cerca', () => {
+    const riferimentoDi = (id) => ({ C1: 'B7', P1: 'B70' })[id] || ''
+    assert.deepEqual(ids(searchSongs(index, 'b7', riferimentoDi)), ['C1'])
+    assert.deepEqual(ids(searchSongs(index, 'c1', riferimentoDi)), [])
+    assert.deepEqual(ids(searchSongs(index, 'c1')), [])
 })
 
 test('parole del testo', () => {

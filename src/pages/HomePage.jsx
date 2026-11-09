@@ -48,10 +48,10 @@ export default function HomePage() {
 
     // Ricerca testuale, poi filtro per momento e tempo (entrambi devono valere)
     const filteredSongs = useMemo(() => {
-        return searchSongs(searchIndex, search).filter((song) =>
+        return searchSongs(searchIndex, search, raccoglitore.riferimento).filter((song) =>
             (selectedMomento === TUTTI || song.tags.includes(selectedMomento)) &&
             (selectedTempo === TUTTI || song.tags.includes(selectedTempo)) &&
-            (!soloRaccoglitore || !raccoglitore.attivo || raccoglitore.riferimento(song.id))
+            (!soloRaccoglitore || !raccoglitore.conCanti || raccoglitore.riferimento(song.id))
         )
     }, [searchIndex, search, selectedMomento, selectedTempo, soloRaccoglitore, raccoglitore])
 
@@ -72,7 +72,7 @@ export default function HomePage() {
                 <input
                     type="search"
                     className="main-search-input"
-                    placeholder="Titolo, autore, codice o parole"
+                    placeholder="Titolo, autore o parole"
                     aria-label="Cerca un canto"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -96,7 +96,7 @@ export default function HomePage() {
                 <span>
                     {filteredSongs.length} {filteredSongs.length === 1 ? 'canto trovato' : 'canti trovati'}
                 </span>
-                {raccoglitore.attivo && (
+                {raccoglitore.conCanti && (
                     <button
                         type="button"
                         className={`tag-chip ${soloRaccoglitore ? 'active' : ''}`}

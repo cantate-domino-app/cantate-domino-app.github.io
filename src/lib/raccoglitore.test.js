@@ -8,7 +8,8 @@ test('riferimentoProposto: primo numero libero, buchi compresi', () => {
     assert.equal(riferimentoProposto([], 'C'), 'C1')
 })
 
-test('prefissoDi: le lettere iniziali del codice', () => {
-    assert.equal(prefissoDi('all17'), 'ALL')
-    assert.equal(prefissoDi('A27'), 'A')
+test('prefissoDi: l\'iniziale del titolo senza accenti', () => {
+    assert.equal(prefissoDi('Santo Candombe'), 'S')
+    assert.equal(prefissoDi('Ève'), 'E')
+    assert.equal(prefissoDi('123'), 'X')
 })

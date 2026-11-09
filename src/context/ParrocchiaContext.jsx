@@ -98,12 +98,14 @@ export function useParrocchia() {
     return useContext(ParrocchiaContext)
 }
 
-// Raccoglitore della parrocchia attiva; attivo = false se nessuna parrocchia è caricata
+// Raccoglitore della parrocchia attiva. conCanti = false se non c'è parrocchia o il raccoglitore è vuoto;
+// modificabile = c'è la password del coro
 export function useRaccoglitore() {
-    const { dati, riferimenti } = useParrocchia()
+    const { dati, riferimenti, sbloccata } = useParrocchia()
     return useMemo(() => ({
-        attivo: !!dati,
+        conCanti: riferimenti.size > 0,
+        modificabile: !!dati && sbloccata,
         nome: dati?.parrocchia?.nome || '',
         riferimento: (songId) => riferimenti.get(songId.toUpperCase()) || '',
-    }), [dati, riferimenti])
+    }), [dati, riferimenti, sbloccata])
 }

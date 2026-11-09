@@ -3,8 +3,8 @@ name: Deploy su GitHub Pages
 on:
   push:
     branches: ['main']
-  # Ogni ora ripubblica il catalogo, così i canti accettati compaiono senza intervento.
-  # shortcut: aggiornamento orario; se serve subito, "Run workflow" su GitHub.
+  # Ripubblica il catalogo per le modifiche fatte a mano nel foglio. GitHub non rispetta l'orario:
+  # tra un giro e l'altro passano spesso alcune ore. I canti accettati dal pannello partono subito.
   schedule:
     - cron: '17 * * * *'
   workflow_dispatch:

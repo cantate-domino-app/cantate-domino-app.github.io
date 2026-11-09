@@ -13,7 +13,7 @@ export function riferimentoProposto(riferimenti, prefisso) {
     return p + n
 }
 
-// Prefisso del codice di archivio: "all17" → "ALL", "A27" → "A"
-export function prefissoDi(id) {
-    return (id.match(/^[A-Za-z]+/)?.[0] || 'X').toUpperCase()
+// Prefisso suggerito: l'iniziale del titolo senza accenti ("Ève" → "E")
+export function prefissoDi(titolo) {
+    return (titolo.normalize('NFD').match(/[A-Za-z]/)?.[0] || 'X').toUpperCase()
 }

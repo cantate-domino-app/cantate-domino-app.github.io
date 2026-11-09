@@ -42,7 +42,17 @@ Se in futuro si cambia lo script: **Esegui il deployment → Gestisci deployment
 3. **Settings → Pages → Source: GitHub Actions**.
 4. **Actions → Deploy su GitHub Pages → Run workflow**.
 
-L'app sarà su `https://cantate-domino-app.github.io/`. Il catalogo dei canti si aggiorna da solo ogni ora. Per vederlo subito dopo una modifica nel foglio basta rilanciare "Run workflow".
+L'app sarà su `https://cantate-domino-app.github.io/`. Il catalogo dei canti si aggiorna da solo ogni qualche ora: GitHub non garantisce l'orario. Per vederlo subito dopo una modifica nel foglio basta rilanciare "Run workflow".
+
+## 5 bis. Pubblicazione immediata dei canti accettati
+
+Senza questo passaggio i canti accettati aspettano il giro automatico.
+
+1. Su GitHub: **Settings (del proprio profilo) → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
+2. Resource owner: `cantate-domino-app`. Repository access: solo `cantate-domino-app.github.io`. Permissions → **Actions: Read and write**. Copiare il token.
+3. Nel foglio: **Canti Liturgici → Imposta token GitHub** e incollarlo. Google chiede di autorizzare di nuovo lo script: serve per collegarsi a GitHub.
+
+Il token resta nelle proprietà dello script, non nel foglio. Quando scade, i canti accettati restano accettati e il pannello avvisa che compariranno entro qualche ora: basta generarne uno nuovo e ripetere il punto 3.
 
 ## 6. Primo accesso
 
@@ -57,7 +67,7 @@ L'app sarà su `https://cantate-domino-app.github.io/`. Il catalogo dei canti si
 |---|---|---|
 | Leggere canti e celebrazioni | Tutti, senza login | App |
 | Modificare le celebrazioni di una parrocchia | Chi ha la password del coro | App → Celebrazioni → Modifica |
-| Aggiungere un canto al raccoglitore della parrocchia | Chi ha la password del coro | Pagina del canto |
+| Aggiungere un canto al raccoglitore della parrocchia, con il riferimento scelto dalla parrocchia | Chi ha la password del coro | Pagina del canto |
 | Proporre un canto nuovo | Tutti | App → Suggerisci canto |
 | Chiedere di aggiungere una parrocchia | Tutti | App → Celebrazioni → "Scopri come aggiungere la tua parrocchia" |
 | Accettare proposte, gestire richieste, creare parrocchie | Admin | App → `#/admin` |

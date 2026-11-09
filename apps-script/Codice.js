@@ -20,6 +20,9 @@ var COLONNE = {
     Proposte: [['Id', 'id'], ['Data', 'data'], ['Parrocchia', 'parrocchia'], ['Titolo', 'titolo'], ['Autore', 'autore'], ['Link', 'link'], ['Testo', 'testo'], ['Note', 'note'], ['Nome', 'nome'], ['Stato', 'stato'], ['CantoAssegnato', 'cantoAssegnato']],
 }
 
+// Repository dell'app: da qui riparte la pubblicazione del catalogo
+var REPOSITORY_APP = 'cantate-domino-app/cantate-domino-app.github.io'
+
 var ERRORE_ACCESSO = 'Parrocchia o password non corretti.'
 var ERRORE_TENTATIVI = 'Troppi tentativi, riprova tra 10 minuti.'
 
@@ -235,22 +238,16 @@ var AZIONI_PARROCCHIA = {
 
 var AZIONI_ADMIN = {
     elencoProposte: function () {
-        var ids = idCanti()
         schedaOCrea(SCHEDE.richieste)
         return {
             ok: true,
             richieste: leggi(SCHEDE.richieste).filter(function (r) { return r.stato === 'nuova' }),
-            proposte: leggi(SCHEDE.proposte)
-                .filter(function (p) { return p.stato === 'nuova' })
-                .map(function (p) { p.codicePredefinito = prossimoIdProgressivo(ids); return p }),
+            proposte: leggi(SCHEDE.proposte).filter(function (p) { return p.stato === 'nuova' }),
         }
     },
 
     accettaProposta: function (dati) {
-        // Il codice è facoltativo: se manca si usa il prossimo numero progressivo.
-        var codice = String(dati.codice || '').trim()
-        if (codice && !/^[A-Za-z]{1,5}\d{1,4}$/.test(codice)) return { ok: false, errore: 'Codice non valido: lettere seguite da un numero, per esempio A27.' }
-        return conBlocco(function () {
+        var esito = conBlocco(function () {
             var proposte = leggi(SCHEDE.proposte)
             var proposta = proposte.filter(function (p) { return p.id === dati.id })[0]
             if (!proposta || proposta.stato !== 'nuova') return { ok: false, errore: 'Proposta non trovata o già gestita.' }
@@ -266,14 +263,13 @@ var AZIONI_ADMIN = {
             proposta.testo = campo('testo', 10000)
             proposta.note = campo('note', 1000)
             var spartito = String(modifiche.spartito || '').trim().slice(0, 500)
-            if (!codice) codice = prossimoIdProgressivo(idCanti())
-            var esiste = idCanti().some(function (id) { return id.toUpperCase() === codice.toUpperCase() })
-            if (esiste) return { ok: false, errore: 'Il codice ' + codice + ' è già usato da un altro canto.' }
+            // ID solo interno: il riferimento nel raccoglitore lo decide ogni parrocchia a parte.
+            var id = prossimoIdProgressivo(idCanti())
             var canti = schedaCanti()
             var intestazione = leggiTabella(canti).intestazione
             var youtube = /youtu/i.test(proposta.link)
             var valori = {
-                ID: codice,
+                ID: id,
                 Titolo: proposta.titolo,
                 Autori: proposta.autore,
                 Tag: String(dati.tag || '').trim(),
@@ -284,10 +280,12 @@ var AZIONI_ADMIN = {
             }
             canti.appendRow(intestazione.map(function (nome) { return cellaSicura(valori[nome]) }))
             proposta.stato = 'accettata'
-            proposta.cantoAssegnato = codice
+            proposta.cantoAssegnato = id
             scrivi(SCHEDE.proposte, proposte)
-            return { ok: true, codice: codice }
+            return { ok: true }
         })
+        if (esito.ok) esito.pubblicato = pubblicaCatalogo()
+        return esito
     },
 
     rifiutaProposta: function (dati) {
@@ -342,6 +340,26 @@ var AZIONI_ADMIN = {
             return { ok: true }
         })
     },
+}
+
+// Fa ripartire subito la pubblicazione su GitHub. Se non riesce il canto resta accettato:
+// lo pubblicherà il giro automatico.
+function pubblicaCatalogo() {
+    var token = PropertiesService.getScriptProperties().getProperty('GITHUB_TOKEN')
+    if (!token) return false
+    SpreadsheetApp.flush()
+    try {
+        var risposta = UrlFetchApp.fetch('https://api.github.com/repos/' + REPOSITORY_APP + '/actions/workflows/deploy.yml/dispatches', {
+            method: 'post',
+            contentType: 'application/json',
+            headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' },
+            payload: JSON.stringify({ ref: 'main' }),
+            muteHttpExceptions: true,
+        })
+        return risposta.getResponseCode() === 204
+    } catch (err) {
+        return false
+    }
 }
 
 function proponiCanto(dati) {
@@ -418,6 +436,7 @@ function onOpen() {
         .createMenu('Canti Liturgici')
         .addItem('Prepara database', 'preparaDatabase')
         .addItem('Imposta password admin', 'impostaPasswordAdmin')
+        .addItem('Imposta token GitHub', 'impostaTokenGithub')
         .addToUi()
 }
 
@@ -477,4 +496,17 @@ function impostaPasswordAdmin() {
     var credenziali = nuovaPassword(password)
     PropertiesService.getScriptProperties().setProperties({ ADMIN_SALE: credenziali.sale, ADMIN_HASH: credenziali.passwordHash })
     ui.alert('Password admin salvata.')
+}
+
+function impostaTokenGithub() {
+    var ui = SpreadsheetApp.getUi()
+    var risposta = ui.prompt('Token GitHub', 'Incolla il token: serve a pubblicare subito i canti accettati.', ui.ButtonSet.OK_CANCEL)
+    if (risposta.getSelectedButton() !== ui.Button.OK) return
+    var token = risposta.getResponseText().trim()
+    if (!token) {
+        ui.alert('Token vuoto: niente è stato salvato.')
+        return
+    }
+    PropertiesService.getScriptProperties().setProperties({ GITHUB_TOKEN: token })
+    ui.alert('Token salvato.')
 }

@@ -69,7 +69,7 @@ function BinderEditor({ song, riferimento }) {
         return stato.errore ? <p className="suggest-error-banner binder-editor" role="alert">{stato.errore}</p> : null
     }
 
-    const proposto = riferimentoProposto(dati.raccoglitore.map((r) => r.riferimento), prefissoDi(song.id))
+    const proposto = riferimentoProposto(dati.raccoglitore.map((r) => r.riferimento), prefissoDi(song.title))
 
     const salva = async (nuovo) => {
         setStato({ invio: true, errore: null })
@@ -173,8 +173,8 @@ export default function SongPage() {
 
     const riferimento = raccoglitore.riferimento(song.id)
     const rubric = fromDaily?.moment
-        ? `${fromDaily.moment} · ${song.id}`
-        : [...song.tags.slice(0, 2), song.id].join(' · ')
+        ? fromDaily.moment
+        : song.tags.slice(0, 2).join(' · ')
     const hasSheets = song.sheetOriginal || (isAdmin && song.sheetModified)
 
     // Frecce tra i canti della celebrazione (solo se si arriva da lì)
@@ -233,14 +233,11 @@ export default function SongPage() {
 
             <header className="song-header">
                 <div className="song-title-group">
-                    <div className="rubric">{rubric}</div>
+                    {rubric && <div className="rubric">{rubric}</div>}
                     <h1>{song.title}</h1>
                     {song.author && <p className="song-subtitle">{song.author}</p>}
-                    {raccoglitore.attivo && (
-                        <p className={`song-binder ${riferimento ? '' : 'is-missing'}`}>
-                            {riferimento ? `Nel raccoglitore: ${riferimento}` : 'Non nel raccoglitore'}
-                        </p>
-                    )}
+                    {riferimento && <p className="song-binder">Nel raccoglitore: {riferimento}</p>}
+                    {!riferimento && raccoglitore.modificabile && <p className="song-binder is-missing">Non nel raccoglitore</p>}
                     <BinderEditor song={song} riferimento={riferimento} />
                 </div>
             </header>

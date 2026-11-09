@@ -8,14 +8,13 @@ export default function SongCard({ song }) {
     const riferimento = raccoglitore.riferimento(song.id)
     return (
         <article className="song-row">
-            <Link to={`/song/${song.id}`} className="song-row-main">
-                <span className="song-row-id">{song.id}</span>
+            <Link to={`/song/${song.id}`} className={`song-row-main ${raccoglitore.conCanti ? '' : 'senza-riferimenti'}`}>
+                {raccoglitore.conCanti && <span className="song-row-id">{riferimento}</span>}
                 <span>
                     <span className="song-row-title">{song.title}</span>
                     {song.author && <span className="song-row-author">{song.author}</span>}
-                    {raccoglitore.attivo && !riferimento && <span className="song-row-binder">Non nel raccoglitore</span>}
-                    {riferimento && riferimento !== song.id && (
-                        <span className="song-row-binder">Raccoglitore: {riferimento}</span>
+                    {raccoglitore.modificabile && raccoglitore.conCanti && !riferimento && (
+                        <span className="song-row-binder">Non nel raccoglitore</span>
                     )}
                 </span>
             </Link>
