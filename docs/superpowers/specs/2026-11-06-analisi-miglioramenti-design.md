@@ -30,7 +30,7 @@ L'obiettivo è triplo:
 ## 3. Stato attuale (fatti verificati)
 
 ### Architettura
-- React 19 + Vite, PWA installabile, pubblicata su GitHub Pages (`LucaValenz/canti-liturgici-santa-chiara`), deploy automatico a ogni push su `main`.
+- React 19 + Vite, PWA installabile, pubblicata su GitHub Pages, deploy automatico a ogni push su `main`.
 - **Nessun backend**. Il database è un Google Sheet pubblicato in CSV:
   - foglio `Canti` (gid=0): `ID, Titolo, Autori, Tag, Link Youtube, Spartito Originale, Spartito Modificato, Testo, Note`;
   - foglio `Celebrazioni` (gid=1649967796): `Celebrazione, Momento, Canto_ID, Note`.
@@ -212,7 +212,7 @@ Ogni fase si può accettare o rifiutare da sola.
 ### Come Luca vede il lavoro
 Niente pubblicazione online del branch. Andrea mostra il restyling dal suo PC:
 - **screenshot prima/dopo** (telefono, iPad, tema chiaro e scuro) preparati alla fine della Fase 1;
-- oppure dal vivo con `npm run dev -- --host`, che rende l'app raggiungibile da un telefono collegato alla stessa rete Wi-Fi (`http://<IP del PC>:5173/canti-liturgici-santa-chiara/`).
+- oppure dal vivo con `npm run dev -- --host`, che rende l'app raggiungibile da un telefono collegato alla stessa rete Wi-Fi (`http://<IP del PC>:5173/`).
 
 ### Accessi
 Andrea oggi non ha accesso in modifica al foglio Google, allo script Apps Script e al repo di Luca: li chiederà prima della Fase 2. La Fase 1 non ne ha bisogno.

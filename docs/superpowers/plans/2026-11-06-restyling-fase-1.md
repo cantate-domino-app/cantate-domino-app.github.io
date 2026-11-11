@@ -189,5 +189,5 @@ test('query vuota restituisce tutto', …)
 - Create: `docs/restyling/dopo/*.png`, `docs/restyling/README.md`
 
 - [ ] **Step 1:** Stessi 12 screenshot del Task 0 → `docs/restyling/dopo/`, più la barra di navigazione tra i canti e la pagina canto su iPad orizzontale.
-- [ ] **Step 2:** `docs/restyling/README.md`: tabella prima/dopo con le immagini, elenco delle modifiche (grafica, bug corretti, novità) in linguaggio non tecnico, e come provarla dal vivo (`npm run dev -- --host`, indirizzo `http://<IP del PC>:5173/canti-liturgici-santa-chiara/` dallo stesso Wi-Fi).
+- [ ] **Step 2:** `docs/restyling/README.md`: tabella prima/dopo con le immagini, elenco delle modifiche (grafica, bug corretti, novità) in linguaggio non tecnico, e come provarla dal vivo (`npm run dev -- --host`, indirizzo `http://<IP del PC>:5173/` dallo stesso Wi-Fi).
 - [ ] **Step 3:** Commit `Restyling: screenshot finali e presentazione per Luca`.

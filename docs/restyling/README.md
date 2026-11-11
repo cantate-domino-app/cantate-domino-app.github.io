@@ -62,7 +62,7 @@ npm install
 npm run dev -- --host
 ```
 
-Poi, da un telefono collegato **allo stesso Wi-Fi**, si apre `http://<IP del PC>:5173/canti-liturgici-santa-chiara/`. L'IP del PC si trova su Mac in Impostazioni di Sistema → Wi-Fi → Dettagli.
+Poi, da un telefono collegato **allo stesso Wi-Fi**, si apre `http://<IP del PC>:5173/`. L'IP del PC si trova su Mac in Impostazioni di Sistema → Wi-Fi → Dettagli.
 
 ## Se piace, se non piace
 
